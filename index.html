@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<meta title="Musig guess" name="viewport" content="user-scalable=no" />
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100;300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Song Snap</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="game/style.css" rel="stylesheet" type="text/css" media="screen" />
+</head>
+
+<body style = "background-color: #29273c;" onresize="ResizeScreen()"></body>
+    <div class="Desktop">
+        <img class = "Desktop" style="width: 100%" src="./img/intro.png" alt="">
+        <p style = "font-size:1vw; padding-bottom: 50px;">Het spel is te spelen tijdens een vergadering in <a href="https://vergaderenineenfort.nl/">fort C in Muiden.</a> Of neem contact op met <a href="http://timheessels.com/">Tim Heessels.</a></p> 
+        
+    </div>
+    <div class = "Mobile" >
+        <img class = "MobileBanner" src="./game/images/SongSnap_Logo.png" alt="">
+        <img style="width:100%" src="./img/Mobile_Banner.png" alt="">
+            <img style="width:100%" src="./img/Banner1.png" alt="">
+            <img style="width:100%" src="./img/Banner2.png" alt="">
+            <img style="width:100%" src="./img/Banner3.png" alt="">
+            <p style = "font-size: 5vw;">Het spel is te spelen tijdens een vergadering in<br><a href="https://vergaderenineenfort.nl/">fort C in Muiden.</a><br><br>Of neem contact op met<br><a href="http://timheessels.com/">Tim Heessels.</a></p> 
+            <div style="height: 200px;"></div>
+        </div>
+<script>
+ResizeScreen();
+
+    function ResizeScreen(){
+            if (window.outerWidth < 1000)
+        {    
+            document.getElementsByClassName('Desktop')[0].style.display = "none"; 
+            document.getElementsByClassName('Mobile')[0].style.display = "inline";         
+        }
+        else
+        {        
+            document.getElementsByClassName('Desktop')[0].style.display = "inline"; 
+            document.getElementsByClassName('Mobile')[0].style.display = "none";    
+        }
+    }
+</script>
+
+</body>
+</html>
