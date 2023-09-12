@@ -1,0 +1,1083 @@
+<!doctype html>
+<html>
+<meta title="Musig guess" name="viewport" content="user-scalable=no" />
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100;300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<head>
+    <title>Song Snap</title>
+    <style>
+        * {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        
+        h1 {
+            font-family: 'Lexend', sans-serif;
+            font-size: 7vh;
+            margin: 130px 0px 50px 0px;
+            color: white;
+            letter-spacing: 5px;
+        }
+        
+        h2 {
+            font-family: 'Lexend', sans-serif;
+            font-size: 3vh;
+            margin: 10px 0px 10px 0px;
+            color: white;
+            letter-spacing: 5px;
+        }
+        
+        h3 {
+            font-family: 'Lexend', sans-serif;
+            font-size: 3.5vh;
+            margin: 50px;
+            color: white;
+            letter-spacing: 5px;
+        }
+        
+        p {
+            font-family: 'Lexend', sans-serif;
+            font-size: 2.5vh;
+            margin: 30px;
+            color: white;
+        }
+        
+        html {
+            background: #1E253B;
+            background-repeat: no-repeat;
+            background-size: cover;
+            width:100%;
+            height: 100%;
+        }
+
+        .LogoImage{
+            margin: 10%;
+            width: 80%;
+        }
+        
+        .sadVinyl {
+            margin: 10vh;
+            display: block;
+            margin-left: auto;
+            margin-right: auto
+        }
+        
+        input {
+            height: 100px;
+            font-size: 3em;
+        }
+        
+        .pname {
+            color: white;
+            width: 80%;
+            height: 100%;
+            padding: 30px 40px;
+            margin: 10px 0 50px 0;
+            text-align: left;
+            border-radius: 15px;
+            border: 5px solid white;
+            background-color: #152233;
+            font-size: 3em;
+        }
+        
+        .psearchPlaylist {
+            color: white;
+            width: 50%;
+            height: 100%;
+            padding: 30px 40px;
+            margin: 10px 50px 50px 0;
+            text-align: left;
+            border-radius: 15px;
+            border: 5px solid white;
+            background-color: #152233;
+            font-size: 3em;
+        }
+        
+        input[type=number] {
+            width: 90%;
+            margin-bottom: 50px;
+        }
+        
+        input[type=submit],
+        button {
+            text-align: center;
+            border-radius: 45px;
+            background: linear-gradient(45deg, rgba(249,212,33,1) 0%, rgba(255,78,81,1) 100%);
+            color: white;
+            padding: 0px 50px;
+            margin: 50px 0px;
+            height: 180px;
+            font-size: 5em;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .BackButtonStyle {
+            background: #FF4E51 !important;
+        }
+
+        .ChangeButtonStyle {
+            background: #FC913A !important;
+        }
+        
+        .BottomButton {
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            position: absolute;
+        }
+        
+        #ErrorMessage {
+            margin-right: 10%;
+            margin-bottom: 0px;
+            text-align: right;
+            color: #ea4146;
+            font-size: 3.2em;
+        }
+        
+        .inputForm {
+            margin-top: 100px;
+            vertical-align: center;
+        }
+        
+        #Setup {
+            display: inline;
+        }
+        
+        #Waiting {
+            display: none;
+        }
+        
+        #PickPlaylist {
+            display: none;
+        }
+        
+        #Guessing {
+            display: none;
+        }
+        
+        #PickDuration {
+            display: none;
+        }
+        
+        #GameNotActive {
+            background-color: white;
+            display: none;
+        }
+        
+        #GameActive {
+            display: none;
+        }
+        
+        button {
+            margin: 50px auto;
+            display: block;
+            touch-action: manipulation;
+        }
+        
+        button:focus {
+            outline: 0;
+        }
+        
+        button::selection {
+            outline: 0;
+        }
+        
+        button img {
+            position: relative;
+            transform: translateY(15%);
+        }
+        
+        .wrapper {
+            position: fixed;
+            bottom: 0%;
+            width: 100%;
+        }
+        
+        .timeBarcontainer {
+            text-align: center;
+        }
+        
+        #scoringRightTop {
+            text-align: right;
+            margin-right: 80px;
+            right: 0;
+            top: 0;
+            position: fixed;
+        }
+        
+        .guessButtons button {
+            margin: 70px auto;
+            width: 90%;
+            height: 230px;
+            opacity: .5;
+        }
+        
+        .guessButtons p {
+            margin: 0;
+        }
+        
+        .Blue {
+            border: 15px solid #7fdbda;
+            border-radius: 40px;
+            background: #325655;
+            transition: all .5s;
+        }
+        
+        .Blue p {
+            color: #7fdbda;
+        }
+        
+        .Orange {            
+            border: 15px solid #febf63;
+            border-radius: 40px;
+            background: #644b27;
+            transition: all .5s;
+        }
+        
+        .Orange p {
+            color: #febf63;
+        }
+        
+        .Green {            
+            border: 15px solid #ade498;
+            border-radius: 40px;
+            background: #44593c;
+            transition: all .5s;
+        }
+        
+        .Green p {
+            color: #ade498;
+        }
+        
+        .Yellow {            
+            border: 15px solid #ede682;
+            border-radius: 40px;
+            background: #5d5a33;
+            transition: all .5s;
+        }
+        
+        .Yellow p {
+            color: #ede682;
+        }
+        
+        .artistText {
+            font-weight: 800;
+        }
+        
+        .songText {
+            font-weight: normal;
+        }
+        
+        #Scoring {
+            display: none;
+        }
+        
+        #scoringDiv {
+            position: fixed;
+            bottom: 0%;
+            width: 100%;
+        }
+        
+        #GainedPointText {
+            margin-bottom: 50px;
+        }
+        
+        #PauseMenu,
+        #KickPlayerMenu {
+            opacity: 0.95;
+            background: #000;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            top: 0;
+            left: 0;
+            position: fixed;
+        }
+        
+        .slidecontainer {
+            width: 100%;
+            /* Width of the outside container */
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            /* Override default CSS styles */
+            appearance: none;
+            width: 80%;
+            /* Full-width */
+            height: 120px;
+            /* Specified height */
+            background: #d3d3d3;
+            /* Grey background */
+            outline: none;
+            /* Remove outline */
+            opacity: 0.7;
+            /* Set transparency (for mouse-over effects on hover) */
+            -webkit-transition: .2s;
+            /* 0.2 seconds transition on hover */
+            transition: opacity .2s;
+        }
+        /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            /* Override default look */
+            appearance: none;
+            width: 35px;
+            /* Set a specific slider handle width */
+            height: 120px;
+            /* Slider handle height */
+            background: #4CAF50;
+            /* Green background */
+            cursor: pointer;
+            /* Cursor on hover */
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 35px;
+            /* Set a specific slider handle width */
+            height: 120px;
+            /* Slider handle height */
+            background: #4CAF50;
+            /* Green background */
+            cursor: pointer;
+            /* Cursor on hover */
+        }
+        
+        #KickPlayerWindow {
+            height: 800px;
+            width: auto;
+            border: 1px solid #ccc;
+            overflow: auto;
+        }
+        
+        .pauseMenuButton {
+            position: fixed;
+            margin: 50px 50px;
+            top: 0;
+            left: 0;
+            width: 60px;
+            height: 60px;
+        }
+        
+        .inlineButton {
+            margin: 20px 20px;
+            display: inline;
+        }
+    </style>
+</head>
+
+
+<body>
+        <div id='GameLoading'>
+            <img class = "LogoImage" src="/images/SongSnap_Logo.png" alt="">
+            <p id="loadingText">Het spel wordt geladen.<br><br>Even geduld a.u.b.</p>
+        </div>
+        <div id='GameNotActive'>
+            <img class = "LogoImage" src="/images/SongSnap_Logo.png" alt="">
+            <p id="gameNotActiveText">Het spel is niet actief!</p>
+            <img class="sadVinyl" src="/images/SadVinyl.png" alt="sadVinyl">
+        </div>
+        <div id="GameActive">
+            <div id='PauseMenu'>
+                <h1>Instellingen</h1>
+                <h2>Spel gepauzeerd<br><br><br></h2>
+                <p>Spotify volume</p>
+                <div class="slidecontainer">
+                    <input type="range" min="1" max="100" value="50" class="slider" id="spotifyVolumeSlider">
+                </div>
+                <!--<button id="showkickPlayers">Spelers kicken</button>-->
+                <button id="backToLobby" class="BackButtonStyle">Spel stoppen <img src="/images/StopGame.png" alt="sadVinyl"></button>
+                <button id="closeMenu" class="BottomButton">Verder spelen <img src="/images/PlayIcon.png" alt="sadVinyl"></button>
+            </div>
+            <div id='KickPlayerMenu'>
+                <img class = "LogoImage" src="/images/SongSnap_Logo.png" alt="">
+                <h2>Spelers kicken<br><br><br></h2>
+                <div id="KickPlayerWindow">
+                    <!--Add or remove player names here on enter-->
+                </div>
+                <button id="closekickPlayers">Terug</button>
+            </div>
+            <div id='Setup'>
+                <img class = "LogoImage" src="/images/SongSnap_Logo.png" alt="">
+                <p>Voer een naam in en druk op meedoen</p>
+                <div class="inputForm">
+                    <p id="ErrorMessage"></p>
+                    <form id="formSubmit">
+                        <input type="text" id="pname" class="pname" name="firstname" placeholder="Je naam">
+                        <input type="submit" value="Meedoen">
+                    </form>
+                </div>
+            </div>
+            <div id='Waiting'>
+                <img class="pauseMenuButton" src="/images/PauseIcon.png" alt="sadVinyl"></button>
+                <h1 id="playerName">Welkom</h1>
+                <Div class="CenterSpacing">
+                    <p id="pressStartInfoText">Druk op start wanneer iedereen verbonden is<br>om het spel te starten!</p>
+                    <button id="readyButton">Start</button>
+                    <button class = "BackButtonStyle" id="backButton">Stoppen</button>
+                </Div>
+            </div>
+            <div id='PickPlaylist'>
+                <div class="inputForm" style="margin-top:40px; margin-bottom:180px">
+                    <form id="searchSubmit">
+                        <input type="text" id="searchText" class="psearchPlaylist" name="Search" placeholder="Zoeken">
+                        <input class = "ChangeButtonStyle" type="submit" value="Zoek" name="Zoek">
+                    </form>
+                </div>
+                <h3 id="viewingPlaylist">Gebruikers's afspeellijst</h3>
+                <button class = "ChangeButtonStyle inlineButton" id="upButton">▲</button>
+                <button class = "ChangeButtonStyle inlineButton" id="downButton">▼</button>
+                <button id="chooseButton">Kies afspeellijst</button>
+                <button class = "BackButtonStyle" id="backToUserPlaylists">Stop zoeken</button>
+                <!--<button id="backButtonPickPlaylist">Terug naar lobby</button>-->
+            </div>
+            <div id='PickDuration'>
+                <h1>Spel lengte</h1>
+                <p id="viewingPlaylist">Hoe veel liedjes wil je raden?</p>
+                <p id="quanityLabel">Hoeveelheid (tussen 1 and afspeellijst-4)</p>
+                <form id="quantitySubmit">
+                    <input type="tel" id="quantity" name="hoeveel" min="1" max="5">
+
+                    <input type="submit" value="Beginnen">
+                    <!--<button id="backToUserPlaylists">Andere playlist</button>-->
+                </form>
+            </div>
+            <div id='Guessing'>
+                <p id="playerNameLeftTop"></p>
+                <p id="scoringRightTop">Geen punten</p>
+                <div class="timeBarcontainer">
+                    <div id="loader">
+                        <canvas id="circularLoader" width="200" height="200"></canvas>
+                    </div>
+                </div>
+                <div class="wrapper">
+                    <h1 id="guessText">Klaar?</h1>
+                    <div class="guessButtons">
+                        <button id="BlueButtonReference" class="Blue"><P> <span class = "artistText" id = "blue_artist"></span><br><span class= "songText"  id = "blue_song"></span> </P></button>
+                        <button id="OrangeButtonReference" class="Orange"><P class = "artistText" id = "orange_artist"></P><P class= "songText"  id = "orange_song"></P></button>
+                        <button id="GreenButtonReference" class="Green"> <P class = "artistText" id = "green_artist"></P><P class= "songText"  id = "green_song"></P></button>
+                        <button id="YellowButtonReference" class="Yellow"><P class = "artistText" id = "yellow_artist"></P><P class= "songText"  id = "yellow_song"></P></button>
+                    </div>
+                </div>
+            </div>
+            <div id='Scoring'>
+                <h1 id="result">Fout!</h1>
+                <div class="guessButtons">
+                    <button id="pickedAnswerButton" class="Orange"><P class = "artistText" id = "picked_artist">Foute ariets</P><P class= "songText"  id = "picked_song">Fout liedje</P></button>
+                </div>
+                <div id="showIfAnserWrong">
+                    <h2 id="CorrectAnswerText">Correct antwoord</h2>
+                    <div class="guessButtons">
+                        <button id="correctAnswerButton" class="Blue"><P class = "artistText" id = "correct_artist">Goede artiest</P><P class= "songText"  id = "correct_song">Goed liedje naam</P></button>
+                    </div>
+                </div>
+                <div id='scoringDiv'>
+                    <img class="pauseMenuButton" src="/images/PauseIcon.png" alt="sadVinyl"></button>
+                    <h2 id="GainedPointText"><img id="fastestGuesser" src="/images/FirstToGuess.png" alt="" width="130px"> Je hebt een punt!</h2>                    
+                </div>
+            </div>
+        </div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+<script>
+    //Timer circle
+    var ctx = document.getElementById('circularLoader').getContext('2d');
+    var al = 0;
+    var start = 4.72;
+    var cw = ctx.canvas.width;
+    var ch = ctx.canvas.height;
+    var diff;
+
+    function SetSim(newValue, maxValue) {
+        al = newValue - 1;
+        diff = ((al / maxValue) * Math.PI * 2 * 10).toFixed(2);
+        ctx.clearRect(0, 0, cw, ch);
+        ctx.lineWidth = 17;
+        ctx.fillStyle = '#4285f4';
+        ctx.strokeStyle = "#4285f4";
+        ctx.textAlign = "center";
+        ctx.font = "28px monospace";
+        if (al > 0) {
+            ctx.fillText(al, cw * .52, ch * .5 + 5, cw + 12);
+        } else {
+            ctx.fillText("", cw * .52, ch * .5 + 5, cw + 12);
+        }
+        ctx.beginPath();
+        ctx.arc(100, 100, 75, start, diff / 10 + start, false);
+        ctx.stroke();
+        if (al >= 100) {
+            clearTimeout(sim);
+        }
+    }
+
+    function setUsernameInURL(value) {
+        value = encodeURIComponent(value);
+        //document.location.pathname = value;
+        window.history.replaceState(null, null, value);
+    }
+    
+    function getParameterByName(name, url = window.location.href) {
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+    setTimeout(() => {
+        serverConnection()
+    }, 1000);
+
+    function serverConnection() {
+        //Variable init
+        var pauseMenuOpen = false;
+        var kickPlayerMenuOpen = false;
+        var usernameCookie = "unset";
+        var roomNumberCookie = "0000";
+        var socket = io();
+        var guessed = false;
+        var CanGuess = false;
+        var spotifyAccountName = "???";
+        var wrongAudioFile = new Audio("/audio/Correct.wav");
+        var correctAudioFile = new Audio("/audio/Wrong.wav");
+
+        //Menu stuff init
+        $('.pauseMenuButton').css('display', 'none');
+        ShowMenu(false);
+        ShowPlayerList(false);
+
+        //Load username if exist (unset means that the username needs to be set by the user)      
+        usernameCookie = getParameterByName("userName");
+        console.log("usernameCookie: " + usernameCookie);
+        if (usernameCookie == null) usernameCookie = "unset";
+        if (usernameCookie == "unset") 
+        {            
+            $('#GameNotActive').css('display', 'none');
+                $('#GameActive').css('display', 'inline');
+        }
+        else{
+            //Direct to game?
+        }
+        
+        //Check the roomnumber
+        roomNumberCookie = getParameterByName("roomNumber");      
+        console.log("roomNumberCookie: " + roomNumberCookie);
+
+        if (roomNumberCookie != "0000")        
+            var dataToSend = {
+                roomNumber: roomNumberCookie,
+                userName: usernameCookie,
+            }
+            socket.emit('roomNumberEntered', dataToSend);
+                
+        //Loading done
+        $('#GameLoading').css('display', 'none');
+
+        socket.on('accepted', function(msg) {
+            console.log("Accepted");
+            $('#pname').css("border-color", "white");
+            $('#ErrorMessage').html('');
+            setUsernameInURL(msg['name']);
+
+            $('#Waiting').css('display', 'inline');
+            $('#Setup').css('display', 'none');
+            $('#Guessing').css('display', 'none');
+            $('#Scoring').css('display', 'none');
+
+            if (msg['isHost'] == 'true') {
+                console.log("This is the host");
+                $('#pressStartInfoText').html('Jij mag bepalen wanneer het spel start. Druk op start wanneer iedereen aangemeld is om een afspeellijst te kiezen!');
+                $('#readyButton').css('display', 'unset');
+            } else {
+                console.log("This is a normal player");
+                $('#pressStartInfoText').html('Wacht even tot de host het spel start!');
+                $('#readyButton').css('display', 'none');
+            }
+            $('#playerName').html('Welkom<br>' + msg['name']);
+        });
+
+        socket.on('pickPlaylist', function(msg) {
+            $('#backToUserPlaylists').css('display', 'none');
+            $('#Waiting').css('display', 'none');
+            $('#Setup').css('display', 'none');
+            $('#PickPlaylist').css('display', 'inline');
+            $('#searchSubmit').css('display', 'inline');
+            spotifyAccountName = msg["spotifyAccountName"];
+            $('#viewingPlaylist').html("Gebruikers's afspeellijst");
+        });
+
+        socket.on('pickDuration', function(msg) {
+            var maxAmount = Number(msg['maxAmount']);
+            $('#PickPlaylist').css('display', 'none');
+            $('#PickDuration').css('display', 'inline');
+            $('#quanityLabel').html('Tussen 1 en ' + maxAmount);
+            $('#quantity').attr({
+                "max": maxAmount,
+            });
+            //TODO: Add quantity in jquery
+        });
+
+        socket.on('declined', function(msg) {
+            var errorMessage = "";
+            switch (msg) {
+                case 1:
+                    errorMessage = "Geen naam ingevuld";
+                    break;
+                case 2:
+                    errorMessage = "Je naam is te lang";
+                    break;
+                case 3:
+                    errorMessage = "Je naam mag alleen letters,<br>cijfers en spaties bevatten";
+                    break;
+                case 4:
+                    errorMessage = "Is is al iemand met die naam";
+                    break;
+                default:
+                    errorMessage = "Onbekende fout";
+            }
+
+            $('#ErrorMessage').html("<i>" + errorMessage + "</i>");
+            $('#pname').css("border-color", "#ea4146");
+        });
+
+        socket.on('confirmPickedAnswer', function(msg) {
+            console.log("ConfirmPickedAnswer");
+            $('#timeBarSecondsText').html("Raad tijd: " + msg['guessTime'] + " (" + msg['position'] + ")");
+
+            if (msg['pickedAnswer'] == 'blue')
+                $('#BlueButtonReference').css('opacity', '1');
+            else
+                $('#BlueButtonReference').css('opacity', '.5');
+            if (msg['pickedAnswer'] == 'orange')
+                $('#OrangeButtonReference').css('opacity', '1');
+            else
+                $('#OrangeButtonReference').css('opacity', '.5');
+            if (msg['pickedAnswer'] == 'green')
+                $('#GreenButtonReference').css('opacity', '1');
+            else
+                $('#GreenButtonReference').css('opacity', '.5');
+            if (msg['pickedAnswer'] == 'yellow')
+                $('#YellowButtonReference').css('opacity', '1');
+            else
+                $('#YellowButtonReference').css('opacity', '.5');
+
+            guessed = true;
+            CanGuess = false;
+        });
+
+        socket.on('setButtonText', function(msg) {
+            $('#Guessing').css('display', 'inline');
+            $('#guessText').html('Raad!');
+            var maxCharacters = 26;
+
+            //BLUE
+            var blueArtist = msg['blue_artist'];
+            $('#blue_artist').html(blueArtist.length > 25 ? blueArtist.substring(0, maxCharacters) + "..." : blueArtist);
+            var blue_song = msg['blue_song'];
+            $('#blue_song').html(blue_song.length > 25 ? blue_song.substring(0, maxCharacters) + "..." : blue_song);
+
+            //GREEN
+            var green_artist = msg['green_artist'];
+            $('#green_artist').html(green_artist.length > 25 ? green_artist.substring(0, maxCharacters) + "..." : green_artist);
+            var green_song = msg['green_song'];
+            $('#green_song').html(green_song.length > 25 ? green_song.substring(0, maxCharacters) + "..." : green_song);
+
+            //ORANGE
+            var orange_artist = msg['orange_artist'];
+            $('#orange_artist').html(orange_artist.length > 25 ? orange_artist.substring(0, maxCharacters) + "..." : orange_artist);
+            var orange_song = msg['orange_song'];
+            $('#orange_song').html(orange_song.length > 25 ? orange_song.substring(0, maxCharacters) + "..." : orange_song);
+
+            //YELLOW
+            var yellow_artist = msg['yellow_artist'];
+            $('#yellow_artist').html(yellow_artist.length > 25 ? yellow_artist.substring(0, maxCharacters) + "..." : yellow_artist);
+            var yellow_song = msg['yellow_song'];
+            $('#yellow_song').html(yellow_song.length > 25 ? yellow_song.substring(0, maxCharacters) + "..." : yellow_song);
+
+            $('.guessButtons').find('button').css('opacity', '1');
+            CanGuess = true;
+        });
+
+        socket.on('setScore', function(msg) {
+            /* Variables */
+            var guessOrder = Number(msg["guessOrder"]);
+            var correct = msg["pickedCorrectAnswer"] == "true" ? true : false;
+            var pickedArtist = msg["pickedArtist"];
+            var pickedSong = msg["pickedSong"];
+            var correctArtist = msg["correctArtist"];
+            var correctSong = msg["correctSong"];
+            var topPlayerName = msg["topPlayerName"];
+            var topPlayerScore = msg["topPlayerScore"];
+            var midPlayerName = msg["midPlayerName"];
+            var midPlayerScore = msg["midPlayerScore"];
+            var bottomPlayerName = msg["bottomPlayerName"];
+            var bottomPlayerScore = msg["bottomPlayerScore"];
+            var correctAnswerClass = msg["correctAnswerClass"];
+            var pickedAnswerClass = msg["pickedAnswerClass"];
+            var playerScore = 0;
+
+            /* Debug time */
+            console.log("guessOrder: " + guessOrder);
+            console.log("correct: " + correct);
+            console.log("pickedArtist: " + pickedArtist);
+            console.log("pickedSong: " + pickedSong);
+            console.log("correctArtist: " + correctArtist);
+            console.log("correctSong: " + correctSong);
+            console.log("topPlayerName: " + topPlayerName);
+            console.log("topPlayerScore: " + topPlayerScore);
+            console.log("midPlayerName: " + midPlayerName);
+            console.log("midPlayerScore: " + midPlayerScore);
+            console.log("bottomPlayerName: " + bottomPlayerName);
+            console.log("bottomPlayerScore: " + bottomPlayerScore);
+
+            /* Showing correct answer */
+            $("#showIfAnserWrong").css('display', correct ? 'none' : 'unset');
+            $("#result").html(correct ? 'Goed!' : 'Fout!');
+            $("#pickedAnswerButton").attr('class', pickedAnswerClass);
+            $("#correctAnswerButton").attr('class', correctAnswerClass);
+            if (pickedArtist == "") {
+                $("#result").html('Geen antwoord!');
+                $("#picked_artist").html('???');
+                $("#picked_song").html('???');
+            } else {
+                wrongAudioFile.play();
+                $("#picked_artist").html(pickedArtist);
+                $("#picked_song").html(pickedSong);
+            }
+            if (!correct) {
+                wrongAudioFile.play();
+                $("#correct_artist").html(correctArtist);
+                $("#correct_song").html(correctSong);
+            } else {
+                correctAudioFile.play();
+            }
+
+            /* How many points are gained or lost */
+            var pointConfirmation = "";
+            if (correct && guessOrder < 1) pointConfirmation = "2 punten erbij!";
+            if (correct && guessOrder > 0) pointConfirmation = "1 punt erbij!";
+            if (!correct && guessOrder < 1) pointConfirmation = "Punt verloren!";
+            if (!correct && guessOrder > 0) pointConfirmation = "";
+            $("#GainedPointText").html((guessOrder < 1 ? '<img id="fastestGuesser" src="/images/FirstToGuess.png" alt="" width="130px">' : '') + " " + pointConfirmation);
+
+           
+            if (playerScore == 0)
+                $("#scoringRightTop").html("Geen punten");
+            else if (playerScore == 1)
+                $("#scoringRightTop").html("1 punt");
+            else
+                $("#scoringRightTop").html(playerScore + " punten");
+
+            /* Reset */
+            SetSim(0, 99);
+            $('.guessButtons').css('opacity', '1');
+            $('#Guessing').css('display', 'none');
+            $('#Scoring').css('display', 'inline');
+
+            guessed = false;
+        });
+
+        socket.on('setPlayerTimer', function(msg) {
+            if (!guessed) {
+                var seconds = eval(msg['seconds']);
+                var totalTime = eval(msg['totalTime']);
+                if (seconds != null && totalTime != null) {
+                    /*
+                    var percentage = ((seconds / totalTime) * 100);
+
+                    $('#timeBarSecondsText').html(msg['seconds']);
+                    $('.timeBarbar').css('width', percentage + '%');
+                    */
+                    console.log("seconds: " + seconds);
+                    if (seconds < 2) {
+                        TimesOver();
+                    }
+                    SetSim(seconds, totalTime);
+                } else {
+                    TimesOver();
+                }
+            }
+        });
+
+        function TimesOver() {
+            //Time's over! No more guessing and buttons grey
+            $('#guessText').html('De tijd is op!');
+            SetSim(0, 99);
+            CanGuess = false;
+            if (!guessed) {
+                $('#BlueButtonReference').css('opacity', '.5');
+                $('#OrangeButtonReference').css('opacity', '.5');
+                $('#GreenButtonReference').css('opacity', '.5');
+                $('#YellowButtonReference').css('opacity', '.5');
+            }
+        }
+
+        socket.on('UpdateActiveGameWindow', function(msg) {
+
+            //Check which windows to display when entering page
+            activeWindow = msg['msg'];
+            console.log("activeWindow: "+activeWindow);
+            if (activeWindow == 'canJoin') {
+                $('#GameNotActive').css('display', 'none');
+                $('#GameActive').css('display', 'inline');
+            } else if (activeWindow == 'allreadyStarted') {
+                ShowUnableToJoin('Er is al een spel actief.<br>Wacht tot de volgende ronde.');
+            } else if (activeWindow == 'reJoin') {
+                $('#GameNotActive').css('display', 'none');
+                $('#GameActive').css('display', 'inline');
+                $('#Setup').css('display', 'none');
+            } else
+                ShowUnableToJoin('Kan geen connectie maken met het spel.');
+        });
+
+        function ShowUnableToJoin(textToShow) {
+            $('#GameNotActive').css('display', 'inline');
+            $('#GameActive').css('display', 'none');
+            $('#gameNotActiveText').html(textToShow);
+        }
+
+        function ShowMenu(show) {
+            pauseMenuOpen = show;
+            $('#PauseMenu').css('display', pauseMenuOpen ? 'inline' : 'none');
+            if (pauseMenuOpen) {
+                socket.emit('getCurrentSpotifyVolumeFromGame');
+            } else
+                socket.emit('resumeGame');
+        }
+
+        function ShowPlayerList(show) {
+            kickPlayerMenuOpen = show;
+            $('#KickPlayerMenu').css('display', kickPlayerMenuOpen ? 'inline' : 'none');
+            if (kickPlayerMenuOpen) {
+                //TODO: GET PLAYER LIST
+                RefreshPlayerList();
+            }
+        }
+
+        function BackToLobby() {
+            socket.emit('backToLobby');
+        }
+
+        function RefreshPlayerList() {
+            socket.emit('getCurrentPlayerList');
+        }
+
+        socket.on('OnPlayerListRefresh', function(msg) {
+            console.log("Players in game: " + msg);
+            var playernames = []
+            playernames = JSON.parse(msg);
+
+            $("#KickPlayerWindow").empty();
+
+            for (var i = 0; i < playernames.length; i++) {
+                console.log("Add player button for: " + playernames[i]);
+                var r = $('<button id="kickPlayer">' + playernames[i] + '</button>');
+                $("#KickPlayerWindow").append(r);
+            }
+        });
+
+        function SetSpotifyVolume(newVolume) {
+            socket.emit('setCurrentSpotifyVolumeFromGame', newVolume);
+        }
+
+        socket.on('setCurrentSpotifyVolumeFromGame', function(msg) {
+            var currentVolume = eval(msg['volume']);
+            var maxVolume = eval(msg['maxVolume']);
+            console.log("spotify currentVolume: " + currentVolume);
+            console.log("spotify maxVolume: " + maxVolume);
+            if (currentVolume != -1 && maxVolume != -1) {
+                $('#spotifyVolumeSlider').prop({
+                    'value': currentVolume,
+                    'max': maxVolume
+                });
+            }
+        });
+
+        $("#spotifyVolumeSlider").change(function() {
+            if (this.value != null)
+                socket.emit('setSpotifyVolume', this.value);
+        });
+
+        socket.on('disconnect', function(s) {
+            location.reload();
+        });
+
+        socket.on('ClearEverything', function(s) {
+            console.log("Clearing this user and reloading page");
+            location.reload();
+        });
+
+        socket.on('GameStart', function(s) {
+            console.log("gamestart");
+
+
+            $('#guessText').html("Klaar?");
+            $('#PickPlaylist').css('display', 'none');
+            $('#Waiting').css('display', 'none');
+            $('#Guessing').css('display', 'inline');
+            $('#Scoring').css('display', 'none');
+            $('#PickDuration').css('display', 'none');
+
+            $('.guessButtons').find('button').css('opacity', '.5');
+
+            $('#blue_artist').html("");
+            $('#blue_song').html("");
+
+            $('#green_artist').html("");
+            $('#green_song').html("");
+
+            $('#orange_artist').html("");
+            $('#orange_song').html("");
+
+            $('#yellow_artist').html("");
+            $('#yellow_song').html("");
+
+            $('#timeBarSecondsText').html('');
+            $('.timeBarbar').css('width', '100%');
+        });
+
+        $('#upButton').click(function() {
+            socket.emit('navigatePlaylists', 'up');
+            return false;
+        });
+
+        $('#downButton').click(function() {
+            socket.emit('navigatePlaylists', 'down');
+            return false;
+        });
+
+        $('#chooseButton').click(function() {
+            socket.emit('navigatePlaylists', 'select');
+            return false;
+        });
+
+        //BUTTON PRESSES
+        $('#GreenButtonReference').on('click touchend', function(e) {
+            if (!guessed && CanGuess)
+                socket.emit('buttonPressed', 'green');
+            return false;
+        });
+        $('#OrangeButtonReference').on('click touchend', function(e) {
+            if (!guessed && CanGuess)
+                socket.emit('buttonPressed', 'orange');
+            return false;
+        });
+        $('#BlueButtonReference').on('click touchend', function(e) {
+            if (!guessed && CanGuess)
+                socket.emit('buttonPressed', 'blue');
+            return false;
+        });
+        $('#YellowButtonReference').on('click touchend', function(e) {
+            if (!guessed && CanGuess)
+                socket.emit('buttonPressed', 'yellow');
+            return false;
+        });
+
+        $('.pauseMenuButton').on('click touchend', function(e) {
+            ShowMenu(true);
+            return false;
+        });
+        $('#closeMenu').on('click touchend', function(e) {
+            ShowMenu(false);
+            return false;
+        });
+        $('#showkickPlayers').on('click touchend', function(e) {
+            console.log("Open kick players");
+            ShowPlayerList(true);
+            return false;
+        });
+        $('#backToLobby').on('click touchend', function(e) {
+            console.log("Clicked on button");
+            if (window.confirm("Wil je terug naar het hoofdmenu? Het huidige spel wordt dan gestopt.")) {
+                BackToLobby();
+            }
+            return false;
+        });
+        $('#closekickPlayers').on('click touchend', function(e) {
+            ShowPlayerList(false);
+            return false;
+        });
+
+        $('#formSubmit').submit(function() {
+            var dataToSend = {
+                name: $('#pname').val(),
+                socketID: "-1"
+            }
+            socket.emit('playerEnteredData', dataToSend);
+            return false;
+        });
+
+        $('#quantitySubmit').submit(function() {
+            var dataToSend = {
+                quantity: $('#quantity').val(),
+            }
+            if (dataToSend.quantity > 0)
+                socket.emit('pickedDurationStartGame', dataToSend);
+            console.log("Submit quantity");
+            return false;
+        });
+
+        $('#searchSubmit').submit(function() {
+            var dataToSend = {
+                searchText: $('#searchText').val(),
+            }
+            if (dataToSend.searchText != "") {
+                socket.emit('searchQuery', dataToSend);
+                console.log("Submit search");
+                $('#viewingPlaylist').html("Zoekresultaten:<br>'" + dataToSend.searchText + "'");
+                $('#backToUserPlaylists').css('display', 'inline');
+                $('#searchSubmit').css('display', 'none');
+                //TODO: Enable button to revert to playlists
+            }
+            return false;
+        });
+
+        $('#backToUserPlaylists').click(function() {
+            $('#viewingPlaylist').html("Gebruikers's afspeellijst");
+            $('#backToUserPlaylists').css('display', 'none');
+            $('#searchSubmit').css('display', 'inline');
+            socket.emit('backToUserPlaylists');
+        });
+
+        $('#backButton').click(function() {
+            socket.emit('playerPressedBack');
+            $('#Waiting').css('display', 'none');
+            $('#Setup').css('display', 'inline');
+            $('.pauseMenuButton').css('display', 'none');
+        });
+
+        $('#readyButton').click(function() {
+            socket.emit('GoToPlaylistSelection');
+        });
+
+        $('#backButtonSongLength').click(function() {
+            console.log("BACK TO LOBBY");
+        });
+
+
+        $(document).on('click', '#kickPlayer', function() {
+            console.log("Clicked on button");
+            var playername = $(this).text();
+            if (window.confirm("Wil je " + playername + " echt verwijderen uit het spel?")) {
+                KickPlayer(playername);
+            }
+        });
+
+        function KickPlayer(playerToKick) {
+            console.log("Speler " + playerToKick + " gekicked.");
+            socket.emit('kickPlayer', playerToKick);
+            RefreshPlayerList();
+        }
+    }
+</script>
+
+</html>
