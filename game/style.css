@@ -1,0 +1,443 @@
+.MobileBanner{
+  margin: 150px 0px;
+  width: 90%;
+}
+
+.hidden{
+  display: none;
+}
+
+.switch-block {
+  width: 300px;
+}
+
+.switch-toggle input {
+    width: 0px;
+    visibility: hidden;
+}
+
+a {
+  color: hotpink;
+}
+
+h5 {
+  margin-bottom: 5px;
+}
+
+#user-info {
+  border: 1px solid #CCC;
+  clear: both;
+  margin: 0 auto 20px;
+  max-width: 400px;
+  padding: 10px;
+  text-align: left;
+}
+
+#photo-container {
+  background-color: #EEE;
+  border: 1px solid #CCC;
+  float: left;
+  height: 80px;
+  margin-right: 10px;
+  width: 80px;
+}
+
+#GameActiveOnOtherTab{
+  display: none;
+}
+
+#backToUserPlaylists{
+  display:none;
+}
+
+#searchSubmit{
+  display:inline;
+}
+
+#photo {
+  height: 80px;
+  margin: 0;
+  width: 80px;
+}
+
+@media (max-width: 300px) {
+  #photo-container,
+  #photo {
+    height: 40px;
+    width: 40px;
+  }
+}
+
+* {
+  font-family: 'Lexend', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+h1 {
+  font-size: 7vh;
+  margin: 130px 0px 50px 0px;
+  color: white;
+  letter-spacing: 5px;
+}
+
+h2 {
+  font-size: 3vh;
+  margin: 10px 0px 10px 0px;
+  color: white;
+  letter-spacing: 5px;
+}
+
+h3 {
+  font-size: 3.5vh;
+  margin: 50px;
+  color: white;
+  letter-spacing: 5px;
+}
+
+p {
+  font-size: 2.5vh;
+  margin: 30px;
+  color: white;
+}
+
+html {
+  background: #1E253B;
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.LogoImage {
+  margin: 10%;
+  width: 80%;
+}
+
+.sadVinyl {
+  width: 70%;
+  margin: 10vh;
+  display: block;
+  margin-left: auto;
+  margin-right: auto
+}
+
+input {
+  height: 100px;
+  font-size: 3em;
+}
+
+.pname {
+  color: white;
+  width: 80%;
+  height: 100%;
+  padding: 30px 40px;
+  margin: 10px 0 50px 0;
+  text-align: left;
+  border-radius: 15px;
+  border: 5px solid white;
+  background-color: #152233;
+  font-size: 3em;
+}
+
+.psearchPlaylist {
+  color: white;
+  width: 50%;
+  height: 100%;
+  padding: 30px 40px;
+  margin: 10px 50px 50px 0;
+  text-align: left;
+  border-radius: 15px;
+  border: 5px solid white;
+  background-color: #152233;
+  font-size: 3em;
+}
+
+input[type=number] {
+  width: 90%;
+  margin-bottom: 50px;
+}
+
+input[type=submit],
+button {
+  text-align: center;
+  border-radius: 45px;
+  background: linear-gradient(45deg, rgba(249, 212, 33, 1) 0%, rgba(255, 78, 81, 1) 100%);
+  color: white;
+  padding: 0px 50px;
+  margin: 50px 0px;
+  height: 180px;
+  font-size: 5em;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.BackButtonStyle {
+  background: #FF4E51 !important;
+}
+
+.ChangeButtonStyle {
+  background: #FC913A !important;
+}
+
+.BottomButton {
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  position: fixed;
+}
+
+#ErrorMessage {
+  margin-right: 10%;
+  margin-bottom: 0px;
+  text-align: right;
+  color: #ea4146;
+  font-size: 3.2em;
+}
+
+.inputForm {
+  margin-top: 100px;
+  vertical-align: center;
+}
+
+#Setup {
+  display: inline;
+}
+
+#WaitForHost{
+  display: none;
+}
+
+#WaitingForOtherPlayers {
+  display: none;
+}
+
+#LoadingPlaylists {
+  display: none;
+}
+
+#PickPlaylist {
+  display: none;
+}
+
+#GameExplain{
+  display: none;
+}
+
+#Guessing {
+  display: none;
+}
+
+#PickDuration {
+  display: none;
+}
+
+#GameNotActive {
+  display: none;
+}
+
+#GameActive {
+  display: none;
+}
+
+button {
+  margin: 50px auto;
+  display: block;
+  touch-action: manipulation;
+}
+
+button:focus {
+  outline: 0;
+}
+
+button::selection {
+  outline: 0;
+}
+
+button img {
+  position: relative;
+  transform: translateY(15%);
+}
+
+.wrapper {
+  position: fixed;
+  bottom: 0%;
+  width: 100%;
+}
+
+.timeBarcontainer {
+  text-align: center;
+}
+
+#scoringPositionLeftTop{
+  text-align: left;
+  margin-right: 80px;
+  left: 0;
+  top: 0;
+  position: fixed;
+}
+
+#scoringRightTop {
+  text-align: right;
+  margin-right: 80px;
+  right: 0;
+  top: 0;
+  position: fixed;
+}
+
+.guessButtons button {
+  margin: 70px auto;
+  width: 90%;
+  height: 230px;
+  opacity: .5;
+}
+
+.guessButtons p {
+  margin: 0;
+}
+
+.Blue {
+  border: 15px solid #7fdbda;
+  border-radius: 40px;
+  background: #325655;
+  transition: all .5s;
+}
+
+.Blue p {
+  color: #7fdbda;
+}
+
+.Orange {
+  border: 15px solid #febf63;
+  border-radius: 40px;
+  background: #644b27;
+  transition: all .5s;
+}
+
+.Orange p {
+  color: #febf63;
+}
+
+.Green {
+  border: 15px solid #ade498;
+  border-radius: 40px;
+  background: #44593c;
+  transition: all .5s;
+}
+
+.Green p {
+  color: #ade498;
+}
+
+.Yellow {
+  border: 15px solid #ede682;
+  border-radius: 40px;
+  background: #5d5a33;
+  transition: all .5s;
+}
+
+.Yellow p {
+  color: #ede682;
+}
+
+.artistText {
+  font-weight: 800;
+}
+
+.songText {
+  font-weight: normal;
+}
+
+#FinalScoring{  
+  display: none;
+}
+
+#Scoring {
+  display: none;
+}
+
+#scoringDiv {
+  position: fixed;
+  bottom: 0%;
+  width: 100%;
+}
+
+#GainedPointText {
+  margin-bottom: 50px;
+}
+
+.slidecontainer {
+  width: 100%;
+  /* Width of the outside container */
+}
+
+.slider {
+  -webkit-appearance: none;
+  /* Override default CSS styles */
+  appearance: none;
+  width: 80%;
+  /* Full-width */
+  height: 120px;
+  /* Specified height */
+  background: #d3d3d3;
+  /* Grey background */
+  outline: none;
+  /* Remove outline */
+  opacity: 0.7;
+  /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: .2s;
+  /* 0.2 seconds transition on hover */
+  transition: opacity .2s;
+}
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  /* Override default look */
+  appearance: none;
+  width: 35px;
+  /* Set a specific slider handle width */
+  height: 120px;
+  /* Slider handle height */
+  background: #4CAF50;
+  /* Green background */
+  cursor: pointer;
+  /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+  width: 35px;
+  /* Set a specific slider handle width */
+  height: 120px;
+  /* Slider handle height */
+  background: #4CAF50;
+  /* Green background */
+  cursor: pointer;
+  /* Cursor on hover */
+}
+
+.pauseMenuButton {
+  position: fixed;
+  margin: 50px 50px;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 60px;
+}
+
+#PauseMenu {
+  display: block;
+  position: absolute;
+  z-index: 10;
+  background-color: #1E253B;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.inlineButton {
+  margin: 20px 20px;
+  display: inline;
+}
