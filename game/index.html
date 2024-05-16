@@ -109,8 +109,8 @@
                             <button id="skipExplainButton">Uitleg overslaan</button>
                         </div>
                         <div id='Guessing' class="screen">
-                            <!--TODO: TEMP: DISABLED
-                            <p id="scoringPositionLeftTop"></p>
+                            <!--TODO: TEMP: DISABLED (Get listener from firebase and update here)
+                            <p id="scoringPositionLeftTop"></p> 
                             -->
                             <p id="scoringRightTop"></p>
                             <div class="timeBarcontainer">
@@ -198,12 +198,6 @@
     }, 1000);
 
     /////////////////////////Variables///////////////////////////////
-    /////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////
 
     let firebaseDB = firebase.database();
     let firebaseAuth = firebase.auth();
@@ -217,22 +211,7 @@
     var userName = null;
     var latestGameState = null;
     var loggedIn = false;
-
-    //Timer circle
-    var ctx = document.getElementById('circularLoader').getContext('2d');
-    var al = 0;
-    var start = 4.72;
-    var cw = ctx.canvas.width;
-    var ch = ctx.canvas.height;
-    var diff;
-
-    /////////////////////////Functions///////////////////////////////
-    /////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////
+    
     addEventListener('focus', event => { location.reload(); });
 
 
@@ -240,6 +219,8 @@
 
     function RoomNumberEntered() {
         if (roomNumberCookie != "" && roomNumberCookie != null) {
+
+            //Set username
             var ref = firebase.database().ref(roomNumberCookie);
             ref.once("value")
                 .then(function (snapshot) {
@@ -255,47 +236,23 @@
 
             //Check if this player is now the host
             firebaseDB.ref(roomNumberCookie + "/HostUID").on('value', function (snapshot) {
-                if (snapshot.val() !== null) 
+                if (snapshot.val() !== null)
                     isHost = (user.uid == snapshot.val());
-                console.log("Current host is: " + snapshot.val() + ", this UID: "+ user.uid);  
-                console.log("isHost: "+isHost);   
-                  if (loggedIn)
-                SwitchActiveScreen(activeScreen);
+                console.log("Current host is: " + snapshot.val() + ", this UID: " + user.uid);
+                console.log("isHost: " + isHost);
+                if (loggedIn)
+                    SwitchActiveScreen();
             });
 
-            //GAME STATE CHANGED!
+            //Game state changed game listener
             firebaseDB.ref(roomNumberCookie + "/CurrentGameState").on('value', function (snapshot) {
+
+                if (!loggedIn)
+                    return;
+
                 if (snapshot.val() !== null) {
                     latestGameState = snapshot.val();
-                    if (latestGameState == "Startup") {
-                        if (loggedIn) location.reload();
-                    }
-                    if (latestGameState == "LoadingPlaylists" && loggedIn) {
-                        SwitchActiveScreen("LoadingPlaylists");
-                    }
-                    if (latestGameState == "PickPlaylist" && loggedIn) {
-                        SwitchActiveScreen("PickPlaylist" );
-                    }
-                    if (latestGameState == "PickDuration") {
-                        var maxAmount = Number(99);
-                        SwitchActiveScreen("PickDuration");
-                        $('#quanityLabel').html('Tussen 1 en ' + maxAmount);
-                        $('#quantity').attr({
-                            "max": maxAmount,
-                        });
-                    }
-                    if (latestGameState == "GameExplain" && loggedIn)
-                        SwitchActiveScreen("GameExplain");                    
-                    if (latestGameState == "Guessing" && loggedIn)
-                        SwitchActiveScreen("Guessing");
-                    if (latestGameState == "Scoring" && loggedIn)
-                        SwitchActiveScreen("Scoring");
-                    if (latestGameState == "FinalScoring" && loggedIn)
-                        SwitchActiveScreen("FinalScoring");
-                    if (latestGameState == null)
-                        SetGameActive(false, "Spel is niet actief");
-                    else
-                        SetGameActive(true);
+                    SwitchActiveScreen();
                 }
             });
         }
@@ -316,16 +273,29 @@
     function SwitchActiveScreen(screenToActivate) {
         disableAllScreens();
 
-        console.log("screenToActivate: "+screenToActivate);
+        //If no screen to activate has been supplied here, activate the last known.
+        if (screenToActivate == null) {
+            if (latestGameState == null) {
+                SetGameActive(false, "Spel is niet actief");
+                return;
+            }
+            else {
+                if (latestGameState == "Startup")
+                    location.reload();
+                else
+                    SwitchActiveScreen(activeScreen);
+                SetGameActive(true);
+                return;
+            }
+        }
 
+        //If the player isn't the host, show the wait screen instead of control buttons
         if (!IsPlayerHost() && screenToActivate == "PickPlaylist")
             screenToActivate = "WaitForHost";
-
         if (!IsPlayerHost() && screenToActivate == "PickDuration")
             screenToActivate = "WaitForHost";
 
-        $('#' + screenToActivate).css('display', 'inline');
-
+        //Handle extra actions when entering certain screens
         switch (screenToActivate) {
             case 'Scoring':
                 SetPlayerScoreScreen();
@@ -339,11 +309,20 @@
                     }
                 });
                 break;
+                case 'PickDuration':
+                var maxAmount = Number(99);
+                    $('#quanityLabel').html('Tussen 1 en ' + maxAmount);
+                    $('#quantity').attr({
+                        "max": maxAmount,
+                    });
+                break;
         }
+
+        //Activate the active screen
+        $('#' + screenToActivate).css('display', 'inline');
     }
 
-    function IsPlayerHost()
-    {
+    function IsPlayerHost() {
         return isHost;
     }
 
@@ -361,29 +340,6 @@
         screens.forEach(s => {
             s.style.display = 'none';
         })
-    }
-
-    //Set the clock timer during guessing
-    function SetSim(newValue, maxValue) {
-        al = newValue - 1;
-        diff = ((al / maxValue) * Math.PI * 2 * 10).toFixed(2);
-        ctx.clearRect(0, 0, cw, ch);
-        ctx.lineWidth = 17;
-        ctx.fillStyle = '#4285f4';
-        ctx.strokeStyle = "#4285f4";
-        ctx.textAlign = "center";
-        ctx.font = "28px monospace";
-        if (al > 0) {
-            ctx.fillText(al, cw * .52, ch * .5 + 5, cw + 12);
-        } else {
-            ctx.fillText("", cw * .52, ch * .5 + 5, cw + 12);
-        }
-        ctx.beginPath();
-        ctx.arc(100, 100, 75, start, diff / 10 + start, false);
-        ctx.stroke();
-        if (al >= 100) {
-            clearTimeout(sim);
-        }
     }
 
     //Generic function to get a parameter from the url by string
@@ -558,13 +514,8 @@
 
     //Set the 4 song titles and artists on the correct buttons.
     function SetGuessData(snapshot) {
-        
-            FillGuessData(snapshot);
-    }
-
-    function FillGuessData(snapshot) {
         var guessState = snapshot.child("guessState").val();
-        console.log("guessState: "+guessState);
+        console.log("guessState: " + guessState);
         switch (guessState) {
             case 'ready':
                 $('#guessText').html('Klaar?');
@@ -800,7 +751,7 @@
                                     wrongAudioFile.play();
                                 }
 
-                                
+
                                 //TODO: Fix points gained   
                                 /*
                                 var pointConfirmation = "";
@@ -951,18 +902,6 @@
         e.preventDefault();
         var quessAmount = $('#quantity').val();
         if (quessAmount > 0) {
-            //ArtistAndOrSongToggle
-            //TODO: FIX
-            /*            
-            var toggleSetting = "ArtistAndSong";
-            if(document.getElementById('artistsAndSongToggle').checked)
-                toggleSetting = "artistsAndSongToggle";
-            if(document.getElementById('artistOnlyToggle').checked)
-                toggleSetting = "artistOnlyToggle";
-            if(document.getElementById('nameOnlyToggle').checked)
-                toggleSetting = "nameOnlyToggle";
-            firebase.database().ref(roomNumberCookie + "/ArtistAndOrSongToggle").set(toggleSetting);
-                */
             firebase.database().ref(roomNumberCookie + "/Host_SongAmount").set(quessAmount);
         }
         return false;
@@ -994,7 +933,7 @@
     $('.backButton').click(function () {
         SwitchActiveScreen('Setup');
         PlayerLeft();
-    });    
+    });
 
     //Enable/disable sumbit quantity number button
     const $numberInput = $('#quantity');
@@ -1003,9 +942,9 @@
     function checkInput() {
         console.log("Check");
         if ($numberInput.val() === "") {
-        $submitButton.css('color', 'grey');
+            $submitButton.css('color', 'grey');
         } else {
-        $submitButton.css('color', 'white');
+            $submitButton.css('color', 'white');
         }
     }
 
