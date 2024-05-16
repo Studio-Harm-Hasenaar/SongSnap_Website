@@ -344,7 +344,6 @@
     //Return to the lobby for a new game.
     function BackToLobby() {
         firebase.database().ref(roomNumberCookie + "/HostInput").set("resetGame");
-        SwitchActiveScreen("PickPlaylist");
     }
 
     //Set the volume of spotify from the mobile.
@@ -366,7 +365,7 @@
         activePlayerRef = firebaseDB.ref(roomNumberCookie + '/ActivePlayers/');
 
         let updatedRoomNumberCookie = getParameterByName("roomNumber");
-        if (updatedRoomNumberCookie != "" && user != null) {
+        if (updatedRoomNumberCookie != "" && updatedRoomNumberCookie != null && user != null) {
 
             //Check if the user is active
             let firebaseRef = firebaseDB.ref(updatedRoomNumberCookie + "/ActivePlayers/" + user.uid + "/UserActive");
@@ -518,6 +517,8 @@
 
     function PlayerLeft() {
         console.log("left");
+        if (roomNumberCookie == null)
+        return;
         firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid).once("value")
             .then(function (snapshot) {
                 if (snapshot.val() !== null)
@@ -899,7 +900,7 @@
 
     //The host has clicked on the return to lobby button. Confirm if this is what he/she wants and then return to lobby.
     $('.backToLobby').on('click touchend', function (e) {
-        if (window.confirm("Wil je terug naar het hoofdmenu? Het huidige spel wordt dan gestopt.")) {
+        if (window.confirm("Wil je een nieuwe afspeellijst uitkiezen?")) {
             ShowMenu(false);
             BackToLobby();
         }
