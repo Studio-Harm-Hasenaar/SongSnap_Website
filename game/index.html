@@ -211,54 +211,12 @@
     var userName = null;
     var latestGameState = null;
     var loggedIn = false;
-    
+    var userActive = false;
+
     addEventListener('focus', event => { location.reload(); });
 
 
     var isHost;
-
-    function RoomNumberEntered() {
-        if (roomNumberCookie != "" && roomNumberCookie != null) {
-
-            //Set username
-            var ref = firebase.database().ref(roomNumberCookie);
-            ref.once("value")
-                .then(function (snapshot) {
-                    if (!snapshot.child("CurrentGameState").exists())
-                        SetGameActive(false, "Spel is niet actief");
-                    else {
-                        if (firebase.auth().currentUser != null)
-                            userName = firebase.auth().currentUser.displayName;
-                        if (userName != null && userName != "" && userName != "undefined")
-                            $("#pname").val(userName);
-                    }
-                });
-
-            //Check if this player is now the host
-            firebaseDB.ref(roomNumberCookie + "/HostUID").on('value', function (snapshot) {
-                if (snapshot.val() !== null)
-                    isHost = (user.uid == snapshot.val());
-                console.log("Current host is: " + snapshot.val() + ", this UID: " + user.uid);
-                console.log("isHost: " + isHost);
-                if (loggedIn)
-                    SwitchActiveScreen();
-            });
-
-            //Game state changed game listener
-            firebaseDB.ref(roomNumberCookie + "/CurrentGameState").on('value', function (snapshot) {
-
-                if (!loggedIn)
-                    return;
-
-                if (snapshot.val() !== null) {
-                    latestGameState = snapshot.val();
-                    SwitchActiveScreen();
-                }
-            });
-        }
-        else
-            SetGameActive(false, "Geen kamernummer gevonden. Heb je de QR code gescand?");
-    }
 
     //Switch between states (game active or not)
     function SetGameActive(gameActive, gameError = "") {
@@ -273,6 +231,8 @@
     function SwitchActiveScreen(screenToActivate) {
         disableAllScreens();
 
+        console.log("screenToActivate before: " + screenToActivate);
+
         //If no screen to activate has been supplied here, activate the last known.
         if (screenToActivate == null) {
             if (latestGameState == null) {
@@ -282,17 +242,24 @@
             else {
                 if (latestGameState == "Startup")
                     location.reload();
-                else
-                    SwitchActiveScreen(activeScreen);
-                SetGameActive(true);
+                else {
+                    if (!userActive)
+                        SwitchActiveScreen("Setup");
+                    else
+                        SwitchActiveScreen(latestGameState);
+                }
                 return;
             }
         }
 
+        console.log("screenToActivate after: " + screenToActivate);
+
+        SetGameActive(true);
+
         //If the player isn't the host, show the wait screen instead of control buttons
-        if (!IsPlayerHost() && screenToActivate == "PickPlaylist")
+        if (!isHost && screenToActivate == "PickPlaylist")
             screenToActivate = "WaitForHost";
-        if (!IsPlayerHost() && screenToActivate == "PickDuration")
+        if (!isHost && screenToActivate == "PickDuration")
             screenToActivate = "WaitForHost";
 
         //Handle extra actions when entering certain screens
@@ -309,21 +276,17 @@
                     }
                 });
                 break;
-                case 'PickDuration':
+            case 'PickDuration':
                 var maxAmount = Number(99);
-                    $('#quanityLabel').html('Tussen 1 en ' + maxAmount);
-                    $('#quantity').attr({
-                        "max": maxAmount,
-                    });
+                $('#quanityLabel').html('Tussen 1 en ' + maxAmount);
+                $('#quantity').attr({
+                    "max": maxAmount,
+                });
                 break;
         }
 
         //Activate the active screen
         $('#' + screenToActivate).css('display', 'inline');
-    }
-
-    function IsPlayerHost() {
-        return isHost;
     }
 
     function SetPlaylistContent(val) {
@@ -401,12 +364,18 @@
         //Check the roomnumber
         roomNumberCookie = getParameterByName("roomNumber");
         activePlayerRef = firebaseDB.ref(roomNumberCookie + '/ActivePlayers/');
-        RoomNumberEntered();
 
         let updatedRoomNumberCookie = getParameterByName("roomNumber");
         if (updatedRoomNumberCookie != "" && user != null) {
+
+            //Check if the user is active
             let firebaseRef = firebaseDB.ref(updatedRoomNumberCookie + "/ActivePlayers/" + user.uid + "/UserActive");
-            firebaseRef.once("value", snapshot => {
+            firebaseRef.on("value", snapshot => {
+
+                userActive = snapshot.val();
+                if (userActive == null) userActive = false;
+
+                console.log("userActive: " + userActive);
                 //IF the player is registered in firebase and closes the window, update its active status
                 firebaseRef.onDisconnect().set(false);
             });
@@ -443,7 +412,7 @@
 
             //Set guess information
             firebaseDB.ref(updatedRoomNumberCookie + "/CurrentQuestion/GuessData").on('value', function (snapshot) {
-                if (snapshot.val() !== null && loggedIn)
+                if (snapshot.val() !== null)
                     SetGuessData(snapshot);
             });
 
@@ -467,6 +436,48 @@
                     $('#searchSubmit').css('display', val != "" ? 'none' : 'inline');
                 }
             });
+
+
+            if (roomNumberCookie != "" && roomNumberCookie != null) {
+
+                //Set username
+                var ref = firebase.database().ref(roomNumberCookie);
+                ref.once("value")
+                    .then(function (snapshot) {
+                        if (!snapshot.child("CurrentGameState").exists())
+                            SetGameActive(false, "Spel is niet actief");
+                        else {
+                            if (firebase.auth().currentUser != null)
+                                userName = firebase.auth().currentUser.displayName;
+                            if (userName != null && userName != "" && userName != "undefined")
+                                $("#pname").val(userName);
+                        }
+                    });
+
+                //Check if this player is now the host
+                firebaseDB.ref(roomNumberCookie + "/HostUID").on('value', function (snapshot) {
+                    var _changed = isHost;
+                    if (snapshot.val() !== null)
+                        isHost = (user.uid == snapshot.val());
+                    _changed = (isHost != _changed);
+                    console.log("Current host is: " + snapshot.val() + ", this UID: " + user.uid);
+                    console.log("isHost: " + isHost);
+                    console.log("_changed: " + _changed);
+                    if (loggedIn && _changed)
+                        SwitchActiveScreen();
+                });
+
+                //Game state changed game listener
+                firebaseDB.ref(roomNumberCookie + "/CurrentGameState").on('value', function (snapshot) {
+
+                    if (snapshot.val() !== null) {
+                        latestGameState = snapshot.val();
+                        SwitchActiveScreen();
+                    }
+                });
+            }
+            else
+                SetGameActive(false, "Geen kamernummer gevonden. Heb je de QR code gescand?");
         }
     }
 
@@ -477,24 +488,26 @@
                     activeScreen = snapshot.val();
                 }
 
+                console.log("Setup new player");
+
                 var tempUserName = firebase.auth().currentUser.displayName;
                 firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid).update({
                     PlayerName: tempUserName,
                     UserActive: true,
-                    Score: 0,
-                    ScoringPlace: 0,
-                    GuessStartTime: 0,
-                    GuessTimeMS: 0,
-                    SelectedAnswer: -1
+                    //Score: 0,
+                    //ScoringPlace: 0,
+                    //GuessStartTime: -1,
+                    //GuessTimeMS: -1,
+                    //SelectedAnswer: -1
                 });
 
                 $('#playerName').html('Welkom<br>' + tempUserName);
-                SwitchActiveScreen(activeScreen);
+                //SwitchActiveScreen(activeScreen);
 
                 if (activeScreen == "Guessing") {
-                    //Set guess information
+                    //Set guess information for late joiners
                     firebaseDB.ref(roomNumberCookie + "/CurrentQuestion/GuessData").once('value', function (snapshot) {
-                        if (snapshot.val() !== null && loggedIn)
+                        if (snapshot.val() !== null)
                             SetGuessData(snapshot);
                     });
                 }
@@ -781,9 +794,26 @@
         }
         return returnValue;
     }
+
+    //Enable/disable sumbit quantity number button
+    const $numberInput = $('#quantity');
+    const $submitButton = $('#amountsubmit');
+    function checkInput() {
+        console.log("Check");
+        if ($numberInput.val() === "") {
+            $submitButton.css('color', 'grey');
+        } else {
+            $submitButton.css('color', 'white');
+        }
+    }
+    $numberInput.on('input', checkInput);
+    checkInput();
+
+    //Quantity listeners
     let quant = document.querySelector('#quantity');
     quant.removeEventListener('change', () => { });
     quant.removeEventListener('value', () => { });
+
     //Set preset song duraction
     $("#set5songs").click(function (e) {
         e.preventDefault();
@@ -804,7 +834,7 @@
     //The host changed the volume slider, update the volume of spotify via unity
     $("#spotifyVolumeSlider").change(function () {
         if (this.value != null)
-            EmitMessage("setSpotifyVolume", "{\"newValue\":\"" + this.value + "\"}")
+            EmitMessage("setSpotifyVolume", "{\"newValue\":\"" + this.value + "\"}") //TODO: < Convert to firebase and make functional
     });
 
     //The host clicked the up button during playlist selection
@@ -934,22 +964,6 @@
         SwitchActiveScreen('Setup');
         PlayerLeft();
     });
-
-    //Enable/disable sumbit quantity number button
-    const $numberInput = $('#quantity');
-    const $submitButton = $('#amountsubmit');
-
-    function checkInput() {
-        console.log("Check");
-        if ($numberInput.val() === "") {
-            $submitButton.css('color', 'grey');
-        } else {
-            $submitButton.css('color', 'white');
-        }
-    }
-
-    $numberInput.on('input', checkInput);
-    checkInput();
 
 </script>
 
