@@ -65,16 +65,8 @@
                                 <button class="LogoutButton BackButtonStyle">Uitloggen</button>
                             </div>
                         </div>
-                        <div id='WaitForHost' class="screen">
-                            <img class="LogoImage" src="images/SongSnap_Logo.png" alt="">
-                            <p>Wacht tot de host klaar is met uitzoeken van een afspeellijst.</p>
-                        </div>
-                        <div id='LoadingPlaylists' class="screen">
-                            <img class="LogoImage" src="images/SongSnap_Logo.png" alt="">
-                            <p>Afspeellijsten laden,<br>Even geduld.</p>
-                        </div>
                         <div id='PickPlaylist' class="screen">
-                            <div id="SearchPlaylistDiv" class="inputForm" style="margin-top:40px; margin-bottom:180px">
+                            <div id = "SearchPlaylistDiv" class="inputForm" style="margin-top:40px; margin-bottom:180px">
                                 <form id="searchSubmit">
                                     <input type="text" id="searchText" class="psearchPlaylist" name="Search"
                                         placeholder="Zoeken">
@@ -84,24 +76,37 @@
                             <h3 id="viewingPlaylist">Kies een afspeellijst</h3>
                             <button class="ChangeButtonStyle inlineButton" id="upButton">▲</button>
                             <button class="ChangeButtonStyle inlineButton" id="downButton">▼</button>
-                            <button id="chooseButton" style=" height:100% !important; min-height: 170px;">Kies
-                                afspeellijst</button>
+                            <button id="chooseButton" style=" height:100% !important; min-height: 170px;">Kies afspeellijst</button>
                             <button class="BackButtonStyle" id="backToUserPlaylists">Stop zoeken</button>
                             <br><br><br><br>
                             <button class="BackButtonStyle backButton">Spel verlaten</button>
                         </div>
                         <div id='PickDuration' class="screen">
+                            <h1>Spel opties</h1>
+                            <!--TODO: Song guess type-->
+                            <p id="songGuessAmount" style="display: none;" >Wat wil je raden?</p>
+                            <div id = "ArtistAndOrSongToggle" style="display: none;" class="switch-toggle switch-holo">
+                                <input type="radio" name="view3" id="artistsAndSongToggle" checked />
+                                <label for="artistsAndSongToggle">Artiest &<br>Naam</label>
+                                
+                                <input type="radio" name="view3" id="artistOnlyToggle" />
+                                <label for="artistOnlyToggle">Artiest<br><br></label>
+                                
+                                <input type="radio" name="view3" id="nameOnlyToggle" />
+                                <label for="nameOnlyToggle">Naam<br><br></label>
+                                <a href=""></a>
+                              </div>
+                              <br><br>
                             <p id="songGuessAmount">Hoe veel liedjes?</p>
                             <form id="quantitySubmit">
                                 <button class="ChangeButtonStyle inlineButton" id="set5songs">5</button>
                                 <button class="ChangeButtonStyle inlineButton" id="set10songs">10</button>
                                 <button class="ChangeButtonStyle inlineButton" id="set15songs">15</button>
                                 <br><br>
-                                <input type="number" id="quantity" name="hoeveel" min="1" max="5">
-                                <input id="amountsubmit" type="submit" value="Beginnen">
+                                <input type="tel" id="quantity" name="hoeveel" min="1" max="5">
+                                <input type="submit" value="Beginnen">
                             </form>
-                            <button class="BackButtonStyle" id="backToUserPlaylistsFromGuessAmount">Andere
-                                afspeellijst</button>
+                            <button class="BackButtonStyle" id="backToUserPlaylistsFromGuessAmount">Andere afspeellijst</button>
                         </div>
                         <div id='GameExplain' class="screen">
                             <h1>Spel uitleg</h1>
@@ -109,9 +114,7 @@
                             <button id="skipExplainButton">Uitleg overslaan</button>
                         </div>
                         <div id='Guessing' class="screen">
-                            <!--TODO: TEMP: DISABLED (Get listener from firebase and update here)
-                            <p id="scoringPositionLeftTop"></p> 
-                            -->
+                            <p id="scoringPositionLeftTop"></p>
                             <p id="scoringRightTop"></p>
                             <div class="timeBarcontainer">
                                 <div id="loader">
@@ -141,9 +144,7 @@
                             </div>
                         </div>
                         <div id='Scoring' class="screen">
-                            <!--TODO: TEMP: DISABLED: 
                             <img class="pauseMenuButton" src="images/PauseIcon.png" alt="sadVinyl"></button>
-                            -->
                             <h1 id="result">Fout!</h1>
                             <div class="guessButtons">
                                 <button id="pickedAnswerButton" class="Orange">
@@ -198,6 +199,12 @@
     }, 1000);
 
     /////////////////////////Variables///////////////////////////////
+    /////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////
 
     let firebaseDB = firebase.database();
     let firebaseAuth = firebase.auth();
@@ -211,12 +218,77 @@
     var userName = null;
     var latestGameState = null;
     var loggedIn = false;
-    var userActive = false;
+    var guessType = null;
 
+    //Timer circle
+    var ctx = document.getElementById('circularLoader').getContext('2d');
+    var al = 0;
+    var start = 4.72;
+    var cw = ctx.canvas.width;
+    var ch = ctx.canvas.height;
+    var diff;
+
+    /////////////////////////Functions///////////////////////////////
+    /////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////
     addEventListener('focus', event => { location.reload(); });
 
+    function RoomNumberEntered() {
+        if (roomNumberCookie != "" && roomNumberCookie != null) {
+            var ref = firebase.database().ref(roomNumberCookie);
+            ref.once("value")
+                .then(function (snapshot) {
+                    if (!snapshot.child("CurrentGameState").exists())
+                        SetGameActive(false, "Spel is niet actief");
+                    else
+                    {
+                        if (firebase.auth().currentUser != null)
+                            userName = firebase.auth().currentUser.displayName;
+                        if (userName != null && userName != "" && userName != "undefined")
+                            $("#pname").val(userName);
+                    }
+                });
 
-    var isHost;
+            //GAME STATE CHANGED!
+            firebaseDB.ref(roomNumberCookie + "/CurrentGameState").on('value', function (snapshot) {
+                if (snapshot.val() !== null) {
+                    latestGameState = snapshot.val();
+                    if (latestGameState == "Startup")
+                        location.reload();
+                    if (latestGameState == "PickPlaylist" && loggedIn) {
+                        SwitchActiveScreen("PickPlaylist");
+                    }
+                    if (latestGameState == "PickDuration") {
+                        var maxAmount = Number(99);
+                            SwitchActiveScreen("PickDuration")
+                        $('#quanityLabel').html('Tussen 1 en ' + maxAmount);
+                        $('#quantity').attr({
+                            "max": maxAmount,
+                        });
+                    }
+                    if (latestGameState == "GameExplain" && loggedIn) {
+                        SwitchActiveScreen("GameExplain");
+                    }
+                    if (latestGameState == "Guessing" && loggedIn)
+                        SwitchActiveScreen("Guessing");
+                    if (latestGameState == "Scoring" && loggedIn)
+                        SwitchActiveScreen("Scoring");
+                    if (latestGameState == "FinalScoring" && loggedIn)
+                        SwitchActiveScreen("FinalScoring");
+                    if (latestGameState == null)
+                        SetGameActive(false, "Spel is niet actief");
+                    else
+                        SetGameActive(true);
+                }
+            });
+        }
+        else
+            SetGameActive(false, "Geen kamernummer gevonden. Heb je de QR code gescand?");
+    }
 
     //Switch between states (game active or not)
     function SetGameActive(gameActive, gameError = "") {
@@ -230,66 +302,26 @@
     //Switch between game screens when game is active
     function SwitchActiveScreen(screenToActivate) {
         disableAllScreens();
+        $('#' + screenToActivate).css('display', 'inline');
 
-        console.log("screenToActivate before: " + screenToActivate);
-
-        //If no screen to activate has been supplied here, activate the last known.
-        if (screenToActivate == null) {
-            if (latestGameState == null) {
-                SetGameActive(false, "Spel is niet actief");
-                return;
-            }
-            else {
-                if (latestGameState == "Startup")
-                    location.reload();
-                else {
-                    if (!userActive)
-                        SwitchActiveScreen("Setup");
-                    else
-                        SwitchActiveScreen(latestGameState);
-                }
-                return;
-            }
-        }
-
-        console.log("screenToActivate after: " + screenToActivate);
-
-        SetGameActive(true);
-
-        //If the player isn't the host, show the wait screen instead of control buttons
-        if (!isHost && screenToActivate == "PickPlaylist")
-            screenToActivate = "WaitForHost";
-        if (!isHost && screenToActivate == "PickDuration")
-            screenToActivate = "WaitForHost";
-
-        //Handle extra actions when entering certain screens
         switch (screenToActivate) {
             case 'Scoring':
                 SetPlayerScoreScreen();
                 break;
-            case 'PickPlaylist':
-                //Set selected playlist
-                firebaseDB.ref(getParameterByName("roomNumber") + "/SelectedPlaylist").once('value', function (snapshot) {
-                    var val = snapshot.val();
-                    if (val !== null && loggedIn) {
-                        SetPlaylistContent(val);
-                    }
-                });
-                break;
-            case 'PickDuration':
-                var maxAmount = Number(99);
-                $('#quanityLabel').html('Tussen 1 en ' + maxAmount);
-                $('#quantity').attr({
-                    "max": maxAmount,
-                });
+                case 'PickPlaylist':                    
+                    //Set selected playlist
+                    firebaseDB.ref(getParameterByName("roomNumber") + "/SelectedPlaylist").once('value', function (snapshot) {
+                        var val = snapshot.val();
+                        if (val !== null && loggedIn)
+                        {
+                            SetPlaylistContent(val);
+                        }
+                    });
                 break;
         }
-
-        //Activate the active screen
-        $('#' + screenToActivate).css('display', 'inline');
     }
 
-    function SetPlaylistContent(val) {
+    function SetPlaylistContent(val) {   
         $('#viewingPlaylist').html(val != "" ? "Kies een afspeellijst met de pijltjes" : "Wacht even tot de liedjes geladen zijn.");
         $('#chooseButton').html("Raad afspeellijst:<br>" + val);
         $('#chooseButton').css('display', val != "" ? 'inline' : 'none');
@@ -303,6 +335,29 @@
         screens.forEach(s => {
             s.style.display = 'none';
         })
+    }
+
+    //Set the clock timer during guessing
+    function SetSim(newValue, maxValue) {
+        al = newValue - 1;
+        diff = ((al / maxValue) * Math.PI * 2 * 10).toFixed(2);
+        ctx.clearRect(0, 0, cw, ch);
+        ctx.lineWidth = 17;
+        ctx.fillStyle = '#4285f4';
+        ctx.strokeStyle = "#4285f4";
+        ctx.textAlign = "center";
+        ctx.font = "28px monospace";
+        if (al > 0) {
+            ctx.fillText(al, cw * .52, ch * .5 + 5, cw + 12);
+        } else {
+            ctx.fillText("", cw * .52, ch * .5 + 5, cw + 12);
+        }
+        ctx.beginPath();
+        ctx.arc(100, 100, 75, start, diff / 10 + start, false);
+        ctx.stroke();
+        if (al >= 100) {
+            clearTimeout(sim);
+        }
     }
 
     //Generic function to get a parameter from the url by string
@@ -344,6 +399,7 @@
     //Return to the lobby for a new game.
     function BackToLobby() {
         firebase.database().ref(roomNumberCookie + "/HostInput").set("resetGame");
+            SwitchActiveScreen("PickPlaylist");
     }
 
     //Set the volume of spotify from the mobile.
@@ -356,128 +412,80 @@
         $('#pname').css("border-color", "#ea4146");
     }
 
-    function SetUserLoggedId() {
+    function SetUserLoggedId(){
         console.log("Logged in. Show content");
         $('#PauseMenu').css('display', pauseMenuOpen ? 'block' : 'none');
 
         //Check the roomnumber
         roomNumberCookie = getParameterByName("roomNumber");
         activePlayerRef = firebaseDB.ref(roomNumberCookie + '/ActivePlayers/');
+        RoomNumberEntered();
 
         let updatedRoomNumberCookie = getParameterByName("roomNumber");
-        if (updatedRoomNumberCookie != "" && updatedRoomNumberCookie != null && user != null) {
-
-            //Check if the user is active
-            let firebaseRef = firebaseDB.ref(updatedRoomNumberCookie + "/ActivePlayers/" + user.uid + "/UserActive");
-            firebaseRef.on("value", snapshot => {
-
-                userActive = snapshot.val();
-                if (userActive == null) userActive = false;
-
-                console.log("userActive: " + userActive);
-                //IF the player is registered in firebase and closes the window, update its active status
-                firebaseRef.onDisconnect().set(false);
-            });
-
-            //Is game paused?
-            firebaseDB.ref(updatedRoomNumberCookie + "/GamePaused").on("value", snapshot => {
-                if (snapshot.val() !== null && loggedIn) {
-                    console.log("Pause: " + snapshot.val());
-                    $('#PauseMenu').css('display', snapshot.val() ? 'block' : 'none');
-                }
-            });
-
-            //Player position
-            firebaseDB.ref(updatedRoomNumberCookie + "/ActivePlayers/" + user.uid + "/ScoringPlace").on("value", snapshot => {
-                if (snapshot.val() !== null && loggedIn) {
-                    $('#finalResult').text(snapshot.val());
-                    //TODO: TEMP: DISABLED:
-                    //$('#scoringPositionLeftTop').text(snapshot.val() + " plaats");
-                }
-            });
-
-            //Player score
-            firebaseDB.ref(updatedRoomNumberCookie + "/ActivePlayers/" + user.uid + "/Score").on("value", snapshot => {
-                if (snapshot.val() !== null && loggedIn) {
-                    let playerScore = parseInt(snapshot.val());
-                    if (playerScore == 0)
-                        $("#scoringRightTop").html("Geen punten");
-                    else if (playerScore == 1)
-                        $("#scoringRightTop").html("1 punt");
-                    else
-                        $("#scoringRightTop").html(playerScore + " punten");
-                }
-            });
-
-            //Set guess information
-            firebaseDB.ref(updatedRoomNumberCookie + "/CurrentQuestion/GuessData").on('value', function (snapshot) {
-                if (snapshot.val() !== null)
-                    SetGuessData(snapshot);
-            });
-
-            //Set selected playlist
-            firebaseDB.ref(updatedRoomNumberCookie + "/SelectedPlaylist").on('value', function (snapshot) {
-                let val = snapshot.val();
-                if (val !== null && loggedIn)
-                    SetPlaylistContent(val);
-            });
-
-            //Switch to searchContent
-            firebaseDB.ref(updatedRoomNumberCookie + "/Host_SearchQuery").on('value', function (snapshot) {
-                let val = snapshot.val();
-                if (val !== null && loggedIn) {
-                    if (val != "")
-                        $('#viewingPlaylist').html("Zoekresultaten:<br>'" + val + "'");
-                    else
-                        $('#viewingPlaylist').html("Kies een afspeellijst");
-
-                    $('#backToUserPlaylists').css('display', val != "" ? 'inline' : 'none');
-                    $('#searchSubmit').css('display', val != "" ? 'none' : 'inline');
-                }
-            });
-
-
-            if (roomNumberCookie != "" && roomNumberCookie != null) {
-
-                //Set username
-                var ref = firebase.database().ref(roomNumberCookie);
-                ref.once("value")
-                    .then(function (snapshot) {
-                        if (!snapshot.child("CurrentGameState").exists())
-                            SetGameActive(false, "Spel is niet actief");
-                        else {
-                            if (firebase.auth().currentUser != null)
-                                userName = firebase.auth().currentUser.displayName;
-                            if (userName != null && userName != "" && userName != "undefined")
-                                $("#pname").val(userName);
-                        }
-                    });
-
-                //Check if this player is now the host
-                firebaseDB.ref(roomNumberCookie + "/HostUID").on('value', function (snapshot) {
-                    var _changed = isHost;
-                    if (snapshot.val() !== null)
-                        isHost = (user.uid == snapshot.val());
-                    _changed = (isHost != _changed);
-                    console.log("Current host is: " + snapshot.val() + ", this UID: " + user.uid);
-                    console.log("isHost: " + isHost);
-                    console.log("_changed: " + _changed);
-                    if (loggedIn && _changed)
-                        SwitchActiveScreen();
+            if (updatedRoomNumberCookie != "" && user != null) {
+                let firebaseRef = firebaseDB.ref(updatedRoomNumberCookie + "/ActivePlayers/" + user.uid + "/UserActive");
+                firebaseRef.once("value", snapshot => {
+                        //IF the player is registered in firebase and closes the window, update its active status
+                    firebaseRef.onDisconnect().set(false);
                 });
 
-                //Game state changed game listener
-                firebaseDB.ref(roomNumberCookie + "/CurrentGameState").on('value', function (snapshot) {
-
-                    if (snapshot.val() !== null) {
-                        latestGameState = snapshot.val();
-                        SwitchActiveScreen();
+                //Is game paused?
+                firebaseDB.ref(updatedRoomNumberCookie + "/GamePaused").on("value", snapshot => {
+                    if (snapshot.val() !== null && loggedIn) {
+                        console.log("Pause: "+snapshot.val());
+                        $('#PauseMenu').css('display', snapshot.val() ? 'block' : 'none');
                     }
                 });
+                
+                //Player position
+                firebaseDB.ref(updatedRoomNumberCookie + "/ActivePlayers/" + user.uid + "/ScoringPlace").on("value", snapshot => {
+                    if (snapshot.val() !== null && loggedIn) {
+                        $('#finalResult').text(snapshot.val());
+                        $('#scoringPositionLeftTop').text(snapshot.val() + " plaats");
+                    }
+                });
+
+                //Player score
+                firebaseDB.ref(updatedRoomNumberCookie + "/ActivePlayers/" + user.uid + "/Score").on("value", snapshot => {
+                    if (snapshot.val() !== null && loggedIn) {
+                        let playerScore = parseInt(snapshot.val());
+                        if (playerScore == 0)
+                            $("#scoringRightTop").html("Geen punten");
+                        else if (playerScore == 1)
+                            $("#scoringRightTop").html("1 punt");
+                        else
+                            $("#scoringRightTop").html(playerScore + " punten");
+                    }
+                });
+
+                //Set guess information
+                firebaseDB.ref(updatedRoomNumberCookie + "/CurrentQuestion/SongData").on('value', function (snapshot) {
+                    if (snapshot.val() !== null && loggedIn)
+                        SetGuessData(snapshot);
+                });
+
+                //Set selected playlist
+                firebaseDB.ref(updatedRoomNumberCookie + "/SelectedPlaylist").on('value', function (snapshot) {
+                    let val = snapshot.val();
+                    if (val !== null && loggedIn)
+                        SetPlaylistContent(val);
+                });
+
+                //Switch to searchContent
+                firebaseDB.ref(updatedRoomNumberCookie + "/Host_SearchQuery").on('value', function (snapshot) {
+                    let val = snapshot.val();
+                    if (val !== null && loggedIn)
+                    {
+                        if (val != "")                        
+                            $('#viewingPlaylist').html("Zoekresultaten:<br>'" + val + "'");
+                        else
+                            $('#viewingPlaylist').html("Kies een afspeellijst");
+
+                        $('#backToUserPlaylists').css('display', val != "" ? 'inline' : 'none');
+                        $('#searchSubmit').css('display', val != "" ? 'none' : 'inline');
+                    }
+                });                
             }
-            else
-                SetGameActive(false, "Geen kamernummer gevonden. Heb je de QR code gescand?");
-        }
     }
 
     function SetupNewPlayer() {
@@ -487,26 +495,19 @@
                     activeScreen = snapshot.val();
                 }
 
-                console.log("Setup new player");
-
                 var tempUserName = firebase.auth().currentUser.displayName;
                 firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid).update({
                     PlayerName: tempUserName,
-                    UserActive: true,
-                    //Score: 0,
-                    //ScoringPlace: 0,
-                    //GuessStartTime: -1,
-                    //GuessTimeMS: -1,
-                    //SelectedAnswer: -1
+                    UserActive: true
                 });
 
                 $('#playerName').html('Welkom<br>' + tempUserName);
-                //SwitchActiveScreen(activeScreen);
+                SwitchActiveScreen(activeScreen);
 
                 if (activeScreen == "Guessing") {
-                    //Set guess information for late joiners
-                    firebaseDB.ref(roomNumberCookie + "/CurrentQuestion/GuessData").once('value', function (snapshot) {
-                        if (snapshot.val() !== null)
+                    //Set guess information
+                    firebaseDB.ref(roomNumberCookie + "/CurrentQuestion/SongData").once('value', function (snapshot) {
+                        if (snapshot.val() !== null && loggedIn)
                             SetGuessData(snapshot);
                     });
                 }
@@ -517,8 +518,6 @@
 
     function PlayerLeft() {
         console.log("left");
-        if (roomNumberCookie == null)
-        return;
         firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid).once("value")
             .then(function (snapshot) {
                 if (snapshot.val() !== null)
@@ -527,9 +526,28 @@
     }
 
     //Set the 4 song titles and artists on the correct buttons.
-    function SetGuessData(snapshot) {
+    function SetGuessData(snapshot) 
+    {
+        //Get the type of game first
+        if (guessType == null)
+        {
+            firebaseDB.ref(roomNumberCookie + "/ArtistAndOrSongToggle").once("value")
+                    .then(function (guessTypeSnapshot) {
+                        if (guessTypeSnapshot.val() !== null)
+                                guessType = guessTypeSnapshot.val();
+                                FillGuessData(snapshot);                            
+                    });
+        }    
+        else
+            FillGuessData(snapshot);    
+    }
+
+    var showArtist;
+    var showSong;
+
+    function FillGuessData(snapshot)
+    {
         var guessState = snapshot.child("guessState").val();
-        console.log("guessState: " + guessState);
         switch (guessState) {
             case 'ready':
                 $('#guessText').html('Klaar?');
@@ -546,9 +564,11 @@
                                 firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid + "/GuessStartTime").set(combinedStartDate);
                             }
                     });
-
-                CheckIfGuessed(1, 'Raad!');
-
+                    
+            showArtist = (guessType != "nameOnlyToggle");
+            showSong = (guessType != "artistOnlyToggle");
+            CheckIfGuessed(1, 'Raad!');
+                
                 break;
             case 'timeup':
                 CheckIfGuessed(.5, 'Tijd is op');
@@ -560,7 +580,7 @@
         }
 
         //Button state
-        if (guessState == 'clean' || guessState == '') { //REMOVED || guessState == 'ready' 
+        if (guessState == 'clean' || guessState == 'ready' || guessState == '') {
             $('#blue_artist').html("Artiest");
             $('#blue_song').html("Titel");
 
@@ -573,26 +593,27 @@
             $('#yellow_artist').html("Artiest");
             $('#yellow_song').html("Titel");
         }
-        else {
+        else
+        {
             //BLUE
-            var blueArtist = snapshot.child("songData").child(0).child("artistName").val();
-            var blueSong = snapshot.child("songData").child(0).child("songName").val();
-            SetMusicGuessContent('#blue_artist', blueArtist, '#blue_song', blueSong);
+            var blueArtist = snapshot.child("artists").child(0).val();
+            var blueSong = snapshot.child("titles").child(0).val();
+            SetMusicGuessContent('#blue_artist', blueArtist, '#blue_song', blueSong,showArtist,showSong);
 
             //ORANGE
-            var orangeArtist = snapshot.child("songData").child(1).child("artistName").val();
-            var orangeSong = snapshot.child("songData").child(1).child("songName").val();
-            SetMusicGuessContent('#orange_artist', orangeArtist, '#orange_song', orangeSong);
+            var orangeArtist = snapshot.child("artists").child(1).val();
+            var orangeSong = snapshot.child("titles").child(1).val();
+            SetMusicGuessContent('#orange_artist', orangeArtist, '#orange_song', orangeSong,showArtist,showSong);
 
             //GREEN
-            var greenArtist = snapshot.child("songData").child(2).child("artistName").val();
-            var greenSong = snapshot.child("songData").child(2).child("songName").val();
-            SetMusicGuessContent('#green_artist', greenArtist, '#green_song', greenSong);
+            var greenArtist = snapshot.child("artists").child(2).val();
+            var greenSong = snapshot.child("titles").child(2).val();
+            SetMusicGuessContent('#green_artist', greenArtist, '#green_song', greenSong,showArtist,showSong);
 
             //YELLOW
-            var yellowArtist = snapshot.child("songData").child(3).child("artistName").val();
-            var yellowSong = snapshot.child("songData").child(3).child("songName").val();
-            SetMusicGuessContent('#yellow_artist', yellowArtist, '#yellow_song', yellowSong);
+            var yellowArtist = snapshot.child("artists").child(3).val();
+            var yellowSong = snapshot.child("titles").child(3).val();
+            SetMusicGuessContent('#yellow_artist', yellowArtist, '#yellow_song', yellowSong,showArtist,showSong);
         }
 
         $('#timeBarSecondsText').html('');
@@ -658,15 +679,17 @@
         $("#GainedPointText").html('');
     }
 
-    function SetMusicGuessContent(jquerryReferenceArtist, contentToSetArtist, jquerryReferenceSong, contentToSetSong) {
+    function SetMusicGuessContent(jquerryReferenceArtist, contentToSetArtist, jquerryReferenceSong, contentToSetSong, showArtist, showSong) {
         //Max 40 characters per song and artist
 
         //Artist
         var shortenedValueArtist = GetMaxCharacterLength(contentToSetArtist);
+        if (!showArtist) shortenedValueArtist = "";
         $(jquerryReferenceArtist).html(shortenedValueArtist);
 
         //Song
         var shortenedValueSong = GetMaxCharacterLength(contentToSetSong);
+        if (!showSong) shortenedValueSong = "";
         $(jquerryReferenceSong).html(shortenedValueSong);
 
         //Check if any has two rows of text and shorten if needed
@@ -693,7 +716,7 @@
             .then(function (snapshot) {
                 if (snapshot.val() !== null) {
                     //Get song data
-                    firebaseDB.ref(roomNumberCookie + "/CurrentQuestion/GuessData").once("value")
+                    firebaseDB.ref(roomNumberCookie + "/CurrentQuestion/SongData").once("value")
                         .then(function (songDataSnapShot) {
                             if (songDataSnapShot.val() !== null) {
                                 if (snapshot.child("SelectedAnswer").val() == -1 && songDataSnapShot.child("guessState").val() == 'guess') {
@@ -709,6 +732,7 @@
                         });
                 }
             });
+
     }
 
     //Update the score.
@@ -723,22 +747,23 @@
                             if (songDataSnapShot.val() !== null) {
 
                                 var selectedAnswerInt = parseInt(playerSnapShot.child("SelectedAnswer").val());
-                                var correctAnswerInt = parseInt(songDataSnapShot.child('GuessData').child("correctInt").val());
+                                var correctAnswerInt = parseInt(songDataSnapShot.child('SongData').child("correctAnswer").val());
+
 
                                 var correct = (selectedAnswerInt == correctAnswerInt);
                                 var pickedArtist = "";
                                 var pickedSong = "";
                                 if (selectedAnswerInt != -1) {
-                                    pickedArtist = songDataSnapShot.child('GuessData').child("songData").child(selectedAnswerInt).child("artistName").val();
-                                    pickedSong = songDataSnapShot.child('GuessData').child("songData").child(selectedAnswerInt).child("songName").val();
+                                    pickedArtist = songDataSnapShot.child('SongData').child("artists").child(selectedAnswerInt).val();
+                                    pickedSong = songDataSnapShot.child('SongData').child("titles").child(selectedAnswerInt).val();
                                 }
                                 var correctArtist = "";
                                 var correctSong = "";
                                 if (correctAnswerInt != -1) {
-                                    correctArtist = songDataSnapShot.child('GuessData').child("songData").child(correctAnswerInt).child("artistName").val();
-                                    correctSong = songDataSnapShot.child('GuessData').child("songData").child(correctAnswerInt).child("songName").val();
+                                    correctArtist = songDataSnapShot.child('SongData').child("artists").child(correctAnswerInt).val();
+                                    correctSong = songDataSnapShot.child('SongData').child("titles").child(correctAnswerInt).val();
                                 }
-                                var isFastestGuessed = firebase.auth().currentUser.uid == songDataSnapShot.child('GuessData').child("fastestGuesserUID").val();
+                                var isFastestGuessed = firebase.auth().currentUser.uid == songDataSnapShot.child('SongData').child("fastestGuesserUID").val();
 
                                 var pickedAnswerClass = GetColorClass(selectedAnswerInt);
                                 var correctAnswerClass = GetColorClass(correctAnswerInt);
@@ -764,8 +789,6 @@
                                     $("#correct_song").html(GetMaxCharacterLength(correctSong));
                                     wrongAudioFile.play();
                                 }
-
-
                                 //TODO: Fix points gained   
                                 /*
                                 var pointConfirmation = "";
@@ -796,46 +819,21 @@
         return returnValue;
     }
 
-    //Enable/disable sumbit quantity number button
-    const $numberInput = $('#quantity');
-    const $submitButton = $('#amountsubmit');
-    function checkInput() {
-        console.log("Check");
-        if ($numberInput.val() === "") {
-            $submitButton.css('color', 'grey');
-        } else {
-            $submitButton.css('color', 'white');
-        }
-    }
-    $numberInput.on('input', checkInput);
-    checkInput();
-
-    //Quantity listeners
-    let quant = document.querySelector('#quantity');
-    quant.removeEventListener('change', () => { });
-    quant.removeEventListener('value', () => { });
-
     //Set preset song duraction
-    $("#set5songs").click(function (e) {
-        e.preventDefault();
-        quant.value = 5;
-        checkInput();
+    $("#set5songs").click(function () {
+        $("#quantity").val(5);
     });
-    $("#set10songs").click(function (e) {
-        e.preventDefault();
-        quant.value = 10;
-        checkInput();
+    $("#set10songs").click(function () {
+        $("#quantity").val(10);
     });
-    $("#set15songs").click(function (e) {
-        e.preventDefault();
-        quant.value = 15;
-        checkInput();
+    $("#set15songs").click(function () {
+        $("#quantity").val(15);
     });
 
     //The host changed the volume slider, update the volume of spotify via unity
     $("#spotifyVolumeSlider").change(function () {
         if (this.value != null)
-            EmitMessage("setSpotifyVolume", "{\"newValue\":\"" + this.value + "\"}") //TODO: < Convert to firebase and make functional
+            EmitMessage("setSpotifyVolume", "{\"newValue\":\"" + this.value + "\"}")
     });
 
     //The host clicked the up button during playlist selection
@@ -900,7 +898,7 @@
 
     //The host has clicked on the return to lobby button. Confirm if this is what he/she wants and then return to lobby.
     $('.backToLobby').on('click touchend', function (e) {
-        if (window.confirm("Wil je een nieuwe afspeellijst uitkiezen?")) {
+        if (window.confirm("Wil je terug naar het hoofdmenu? Het huidige spel wordt dan gestopt.")) {
             ShowMenu(false);
             BackToLobby();
         }
@@ -929,10 +927,19 @@
     });
 
     //The host has input how many songs there should be in this guessing game
-    $('#quantitySubmit').submit(function (e) {
-        e.preventDefault();
+    $('#quantitySubmit').submit(function () {
         var quessAmount = $('#quantity').val();
-        if (quessAmount > 0) {
+        if (quessAmount > 0)
+        {
+            //ArtistAndOrSongToggle
+            var toggleSetting = "ArtistAndSong";
+            if(document.getElementById('artistsAndSongToggle').checked)
+                toggleSetting = "artistsAndSongToggle";
+            if(document.getElementById('artistOnlyToggle').checked)
+                toggleSetting = "artistOnlyToggle";
+            if(document.getElementById('nameOnlyToggle').checked)
+                toggleSetting = "nameOnlyToggle";
+            firebase.database().ref(roomNumberCookie + "/ArtistAndOrSongToggle").set(toggleSetting);
             firebase.database().ref(roomNumberCookie + "/Host_SongAmount").set(quessAmount);
         }
         return false;
@@ -952,12 +959,12 @@
     //The host wants to return to the user playlist overview
     $('#backToUserPlaylists').click(function () {
         firebase.database().ref(roomNumberCookie + "/HostInput").set("backToUserPlaylist");
-        firebase.database().ref(roomNumberCookie + "/Host_SearchQuery").set("");
+            firebase.database().ref(roomNumberCookie + "/Host_SearchQuery").set("");
     });
 
     $('#backToUserPlaylistsFromGuessAmount').click(function () {
         firebase.database().ref(roomNumberCookie + "/HostInput").set("backToUserPlaylist");
-        firebase.database().ref(roomNumberCookie + "/Host_SearchQuery").set("");
+            firebase.database().ref(roomNumberCookie + "/Host_SearchQuery").set("");
     });
 
     //A player wants to return to the input field
@@ -966,6 +973,44 @@
         PlayerLeft();
     });
 
+  /////YET TO CONVERT
+
+    /*
+    //Update the timer during the guessing phase and show when the time is up.
+    socket.on('setPlayerTimer', function(msg) {
+        if (!guessed) {
+  
+            var obj = JSON.parse(msg);
+  
+            var seconds = eval(obj.seconds);
+            var totalTime = eval(obj.totalTime);
+            if (seconds != null && totalTime != null) {
+                
+                console.log("seconds: " + seconds);
+                if (seconds < 2) {
+                    GuessTimeOver();
+                }
+                SetSim(seconds, totalTime);
+            } else {
+                GuessTimeOver();
+            }
+        }
+    });
+  
+    //The game has checked the current volume of the spotify client. Sync this with the volume on the host menu
+    socket.on('setCurrentSpotifyVolumeFromGame', function(msg) {
+        var currentVolume = eval(msg['volume']);
+        var maxVolume = eval(msg['maxVolume']);
+        console.log("spotify currentVolume: " + currentVolume);
+        console.log("spotify maxVolume: " + maxVolume);
+        if (currentVolume != -1 && maxVolume != -1) {
+            $('#spotifyVolumeSlider').prop({
+                'value': currentVolume,
+                'max': maxVolume
+            });
+        }
+    });
+    */
 </script>
 
 </html>

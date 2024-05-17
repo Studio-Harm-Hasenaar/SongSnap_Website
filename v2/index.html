@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<meta title="Musig guess" name="viewport" content="user-scalable=no" />
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100;300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Song Snap</title>
+    <link rel="manifest" href="manifest.json">
+
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.0/firebase-ui-auth.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/6.0.0/firebase-ui-auth.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="js/common.js"></script>
+    <script src=js/firebaseScripts.js></script>
+    <link href="style.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="toggle-switch.css" rel="stylesheet" type="text/css" media="screen" />
+</head>
+
+<body>
+    <div id='GameLoading'>
+        <img class="LogoImage" src="images/SongSnap_Logo.png" alt="">
+        <p id="loadingText">Het spel wordt geladen.<br><br>Even geduld a.u.b.</p>
+    </div>
+    <div id="container">
+        <div id="loaded">
+            <div id="main">
+                <div id="user-signed-in" class="hidden">
+
+                    <div id='GameNotActive'>
+                        <img class="LogoImage" src="images/SongSnap_Logo.png" alt="">
+                        <p id="gameNotActiveText">Het spel is niet actief!</p>
+                        <img class="sadVinyl" src="images/SadVinyl.png" alt="sadVinyl">
+                    </div>
+                    <div id="GameActive">
+                        <div id='PauseMenu'>
+                            <h1 style="margin: 30px 0px 50px 0px">Instellingen</h1>
+                            <h2>Spel gepauzeerd<br><br><br></h2>
+                            <!--
+                <p>Spotify volume</p>
+                <div class="slidecontainer">
+                    <input type="range" min="1" max="100" value="50" class="slider" id="spotifyVolumeSlider">
+                </div>
+                -->
+                            <button class="BackButtonStyle backToLobby">Spel stoppen <img src="images/StopGame.png"
+                                    alt="sadVinyl"></button>
+                            <!--TODO: Fix logging-->
+                            <button id="closeMenu" class="BottomButton">Verder spelen <img src="images/PlayIcon.png"
+                                    alt="sadVinyl"></button>
+                        </div>
+                        <div id='Setup' class="screen">
+                            <img class="LogoImage" src="images/SongSnap_Logo.png" alt="">
+                            <p>Voer een naam in en druk op meedoen</p>
+                            <div class="inputForm">
+                                <p id="ErrorMessage"></p>
+                                <form id="formSubmit">
+                                    <input type="text" id="pname" class="pname" name="firstname" placeholder="Je naam">
+                                    <input type="submit" value="Meedoen">
+                                </form>
+                                <button class="LogoutButton BackButtonStyle">Uitloggen</button>
+                            </div>
+                        </div>
+                        <div id='WaitForHost' class="screen">
+                            <img class="LogoImage" src="images/SongSnap_Logo.png" alt="">
+                            <p>Wacht tot de host klaar is met uitzoeken van een afspeellijst.</p>
+                        </div>
+                        <div id='LoadingPlaylists' class="screen">
+                            <img class="LogoImage" src="images/SongSnap_Logo.png" alt="">
+                            <p>Afspeellijsten laden,<br>Even geduld.</p>
+                        </div>
+                        <div id='PickPlaylist' class="screen">
+                            <div id="SearchPlaylistDiv" class="inputForm" style="margin-top:40px; margin-bottom:180px">
+                                <form id="searchSubmit">
+                                    <input type="text" id="searchText" class="psearchPlaylist" name="Search"
+                                        placeholder="Zoeken">
+                                    <input class="ChangeButtonStyle" type="submit" value="Zoek" name="Zoek">
+                                </form>
+                            </div>
+                            <h3 id="viewingPlaylist">Kies een afspeellijst</h3>
+                            <button class="ChangeButtonStyle inlineButton" id="upButton">▲</button>
+                            <button class="ChangeButtonStyle inlineButton" id="downButton">▼</button>
+                            <button id="chooseButton" style=" height:100% !important; min-height: 170px;">Kies
+                                afspeellijst</button>
+                            <button class="BackButtonStyle" id="backToUserPlaylists">Stop zoeken</button>
+                            <br><br><br><br>
+                            <button class="BackButtonStyle backButton">Spel verlaten</button>
+                        </div>
+                        <div id='PickDuration' class="screen">
+                            <p id="songGuessAmount">Hoe veel liedjes?</p>
+                            <form id="quantitySubmit">
+                                <button class="ChangeButtonStyle inlineButton" id="set5songs">5</button>
+                                <button class="ChangeButtonStyle inlineButton" id="set10songs">10</button>
+                                <button class="ChangeButtonStyle inlineButton" id="set15songs">15</button>
+                                <br><br>
+                                <input type="number" id="quantity" name="hoeveel" min="1" max="5">
+                                <input id="amountsubmit" type="submit" value="Beginnen">
+                            </form>
+                            <button class="BackButtonStyle" id="backToUserPlaylistsFromGuessAmount">Andere
+                                afspeellijst</button>
+                        </div>
+                        <div id='GameExplain' class="screen">
+                            <h1>Spel uitleg</h1>
+                            <p id="songGuessAmount">Kijk op het scherm voor informatie.</p>
+                            <button id="skipExplainButton">Uitleg overslaan</button>
+                        </div>
+                        <div id='Guessing' class="screen">
+                            <!--TODO: TEMP: DISABLED (Get listener from firebase and update here)
+                            <p id="scoringPositionLeftTop"></p> 
+                            -->
+                            <p id="scoringRightTop"></p>
+                            <div class="timeBarcontainer">
+                                <div id="loader">
+                                    <canvas id="circularLoader" width="200" height="200"></canvas>
+                                </div>
+                            </div>
+                            <div class="wrapper">
+                                <h1 id="guessText">Klaar?</h1>
+                                <div class="guessButtons">
+                                    <button id="BlueButtonReference" class="Blue">
+                                        <P class="artistText" id="blue_artist">Artiest</P>
+                                        <P class="songText" id="blue_song">Titel</P>
+                                    </button>
+                                    <button id="OrangeButtonReference" class="Orange">
+                                        <P class="artistText" id="orange_artist">Artiest</P>
+                                        <P class="songText" id="orange_song">Titel</P>
+                                    </button>
+                                    <button id="GreenButtonReference" class="Green">
+                                        <P class="artistText" id="green_artist">Artiest</P>
+                                        <P class="songText" id="green_song">Titel</P>
+                                    </button>
+                                    <button id="YellowButtonReference" class="Yellow">
+                                        <P class="artistText" id="yellow_artist">Artiest</P>
+                                        <P class="songText" id="yellow_song">Titel</P>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id='Scoring' class="screen">
+                            <!--TODO: TEMP: DISABLED: 
+                            <img class="pauseMenuButton" src="images/PauseIcon.png" alt="sadVinyl"></button>
+                            -->
+                            <h1 id="result">Fout!</h1>
+                            <div class="guessButtons">
+                                <button id="pickedAnswerButton" class="Orange">
+                                    <P class="artistText" id="picked_artist">Foute ariets</P>
+                                    <P class="songText" id="picked_song">Fout liedje</P>
+                                </button>
+                            </div>
+                            <div id="showIfAnserWrong">
+                                <h2 id="CorrectAnswerText">Correct antwoord</h2>
+                                <div class="guessButtons">
+                                    <button id="correctAnswerButton" class="Blue">
+                                        <P class="artistText" id="correct_artist">Goede artiest</P>
+                                        <P class="songText" id="correct_song">Goed liedje naam</P>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id='scoringDiv'>
+                                <h2 id="GainedPointText"><img id="fastestGuesser" src="images/FirstToGuess.png" alt=""
+                                        width="130px"></h2>
+                            </div>
+                        </div>
+                        <div id='FinalScoring' class="screen">
+                            <h2 id="finalResultTitle">Spel over</h2>
+                            <h1 id="finalResult">Nog een keer spelen?</h1>
+                            <br><br><br>
+                            <button class="BackButtonStyle backToLobby">Nieuw spel <img src="images/StopGame.png"
+                                    alt="sadVinyl"></button>
+                        </div>
+                    </div>
+                </div>
+                <div id="user-signed-out" class="hidden">
+                    <img class="LogoImage" src="images/SongSnap_Logo.png" alt="">
+                    <p>Log in om je gebruikersnaam en score te onthouden.<br>Je kan ook als gast spelen!</p>
+                    <div id="firebaseui-auth-container" style="margin-top: 350px; transform: scale(3)"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src=js/songsnap.js?v1></script>
+</html>
