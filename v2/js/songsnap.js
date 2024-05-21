@@ -75,6 +75,8 @@ function SwitchActiveScreen(screenToActivate) {
         screenToActivate = "WaitForHost";
     if (!isHost && screenToActivate == "PickDuration")
         screenToActivate = "WaitForHost";
+    if (!isHost && screenToActivate == "GameExplain")
+        screenToActivate = "WaitForHost";    
 
     //Handle extra actions when entering certain screens
     switch (screenToActivate) {
@@ -752,7 +754,7 @@ $('#formSubmit').submit(function (e) {
                     const userData = childSnapshot.val();
               
                     // Check if the userName matches
-                    if (userData.PlayerName == userName) {
+                    if (userData.PlayerName == userName && userData.userActive) {
                       nameExists = true;
                     }
                   });
