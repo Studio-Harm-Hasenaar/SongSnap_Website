@@ -27,7 +27,7 @@ var latestGameState = null;
 var loggedIn = false;
 var userActive = false;
 
-addEventListener('focus', event => { location.reload(); });
+//addEventListener('focus', event => { location.reload(); });
 
 
 var isHost;
@@ -45,7 +45,7 @@ function SetGameActive(gameActive, gameError = "") {
 function SwitchActiveScreen(screenToActivate) {
     disableAllScreens();
 
-    console.log("screenToActivate before: " + screenToActivate);
+    console.log("screenToActivate before: " + screenToActivate + ", userActive: "+userActive + ", latestGameState: "+latestGameState);
 
     //If no screen to activate has been supplied here, activate the last known.
     if (screenToActivate == null) {
@@ -190,6 +190,7 @@ function SetUserLoggedId() {
 
             console.log("userActive: " + userActive);
             //IF the player is registered in firebase and closes the window, update its active status
+            SwitchActiveScreen();
             firebaseRef.onDisconnect().set(false);
         });
 
@@ -252,7 +253,6 @@ function SetUserLoggedId() {
 
 
         if (roomNumberCookie != "" && roomNumberCookie != null) {
-
             //Set username
             var ref = firebase.database().ref(roomNumberCookie);
             ref.once("value")
@@ -263,7 +263,21 @@ function SetUserLoggedId() {
                         if (firebase.auth().currentUser != null)
                             userName = firebase.auth().currentUser.displayName;
                         if (userName != null && userName != "" && userName != "undefined")
-                            $("#pname").val(userName);
+                            {
+                                var nameExists = false;
+                                snapshot.child("ActivePlayers").forEach((childSnapshot) => {
+                                    const userData = childSnapshot.val();
+                              
+                                    // Check if the userName matches
+                                    if (userData.PlayerName == userName) {
+                                      nameExists = true;
+                                      return true; // Break the loop if a match is found
+                                    }
+                                  });
+
+                                  console.log("Set username "+nameExists);
+                                    $("#pname").val(nameExists ? "" : userName);
+                            }
                     }
                 });
 
@@ -721,25 +735,48 @@ $('.backToLobby').on('click touchend', function (e) {
     return false;
 });
 
-//A player has entered his/her data, check on the server if this data is valid.
+//A player has entered their data, check on the server if this data is valid.
 $('#formSubmit').submit(function (e) {
-
+    e.preventDefault();
     var newDisplayname = $('#pname').val();
+    var ref = firebase.database().ref(roomNumberCookie);
+    ref.once("value")
+        .then(function (snapshot) {
+    
+            console.log("Name entered");
+            
+            if (snapshot.val() !== null)
+                {
+                var nameExists = false;
+                snapshot.child("ActivePlayers").forEach((childSnapshot) => {
+                    const userData = childSnapshot.val();
+              
+                    // Check if the userName matches
+                    if (userData.PlayerName == userName) {
+                      nameExists = true;
+                    }
+                  });
+                }
+                if (nameExists)
+                    {
+                        ShowErrorMessage("Deze naam is al in gebruik");
+                        return false;
+                    }
 
-    if (newDisplayname != "") {
-        const user = firebase.auth().currentUser;
-        user.updateProfile({
-            displayName: newDisplayname,
-        }).then(() => {
-            SetupNewPlayer();
-        }).catch((error) => {
-            ShowErrorMessage("Database fout: " + error);
-        });
-    }
-    else
-        ShowErrorMessage("Geen naam ingevuld");
-    //RoomNumberEntered($('#pname').val());
-    return false;
+        if (newDisplayname != "" && !nameExists) {
+            const user = firebase.auth().currentUser;
+            user.updateProfile({
+                displayName: newDisplayname,
+            }).then(() => {
+                SetupNewPlayer();
+            }).catch((error) => {
+                ShowErrorMessage("Database fout: " + error);
+            });
+        }
+        else
+            ShowErrorMessage("Geen naam ingevuld");
+        return false;
+    });
 });
 
 //The host has input how many songs there should be in this guessing game
