@@ -287,19 +287,20 @@ button img {
   position: fixed;
 }
 
-.guessButtons button {
-  margin: 70px auto;
-  width: 90%;
-  height: 230px;
-  opacity: .5;
+.guessButtons button
+{
+  margin: 3vh auto;
+  width: 70vw;
+  height: 13vh;
 }
+
 
 .guessButtons p {
   margin: 0;
 }
 
 .Blue {
-  border: 15px solid #7fdbda;
+  border: 1vh solid #7fdbda;
   border-radius: 40px;
   background: #325655;
   transition: all .5s;
@@ -310,7 +311,7 @@ button img {
 }
 
 .Orange {
-  border: 15px solid #febf63;
+  border: 1vh solid #febf63;
   border-radius: 40px;
   background: #644b27;
   transition: all .5s;
@@ -321,7 +322,7 @@ button img {
 }
 
 .Green {
-  border: 15px solid #ade498;
+  border: 1vh solid #ade498;
   border-radius: 40px;
   background: #44593c;
   transition: all .5s;
@@ -332,7 +333,7 @@ button img {
 }
 
 .Yellow {
-  border: 15px solid #ede682;
+  border: 1vh solid #ede682;
   border-radius: 40px;
   background: #5d5a33;
   transition: all .5s;
