@@ -217,7 +217,7 @@ function SetUserLoggedId() {
         firebaseDB.ref(updatedRoomNumberCookie + "/ActivePlayers/" + user.uid + "/Score").on("value", snapshot => {
             if (snapshot.val() !== null && loggedIn) {
                 let playerScore = parseInt(snapshot.val());
-                if (playerScore == 0)
+                if (playerScore <= 0)
                     $("#scoringRightTop").html("Geen punten");
                 else if (playerScore == 1)
                     $("#scoringRightTop").html("1 punt");
@@ -323,11 +323,6 @@ function SetupNewPlayer() {
             firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid).update({
                 PlayerName: tempUserName,
                 UserActive: true,
-                //Score: 0,
-                //ScoringPlace: 0,
-                //GuessStartTime: -1,
-                //GuessTimeMS: -1,
-                //SelectedAnswer: -1
             });
 
             $('#playerName').html('Welkom<br>' + tempUserName);

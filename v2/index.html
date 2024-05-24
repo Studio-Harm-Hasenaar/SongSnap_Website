@@ -41,16 +41,9 @@
                         <div id='PauseMenu'>
                             <h1 style="margin: 30px 0px 50px 0px">Instellingen</h1>
                             <h2>Spel gepauzeerd<br><br><br></h2>
-                            <!--
-                <p>Spotify volume</p>
-                <div class="slidecontainer">
-                    <input type="range" min="1" max="100" value="50" class="slider" id="spotifyVolumeSlider">
-                </div>
-                -->
-                            <button class="BackButtonStyle backToLobby">Spel stoppen <img src="images/StopGame.png"
+                            <button class="BackButtonStyle backToLobby">Nieuwe ronde<img src="images/StopGame.png"
                                     alt="sadVinyl"></button>
-                            <!--TODO: Fix logging-->
-                            <button id="closeMenu" class="BottomButton">Verder spelen <img src="images/PlayIcon.png"
+                            <button id="closeMenu" class="BottomButton">Verder spelen<img src="images/PlayIcon.png"
                                     alt="sadVinyl"></button>
                         </div>
                         <div id='Setup' class="screen">
@@ -109,6 +102,7 @@
                             <button id="skipExplainButton">Uitleg overslaan</button>
                         </div>
                         <div id='Guessing' class="screen">
+                            <img class="pauseMenuButton" src="images/PauseIcon.png" alt="sadVinyl"></button>
                             <!--TODO: TEMP: DISABLED (Get listener from firebase and update here)
                             <p id="scoringPositionLeftTop"></p> 
                             -->
@@ -141,9 +135,7 @@
                             </div>
                         </div>
                         <div id='Scoring' class="screen">
-                            <!--TODO: TEMP: DISABLED: 
                             <img class="pauseMenuButton" src="images/PauseIcon.png" alt="sadVinyl"></button>
-                            -->
                             <h1 id="result">Fout!</h1>
                             <div class="guessButtons">
                                 <button id="pickedAnswerButton" class="Orange">
@@ -169,7 +161,7 @@
                             <h2 id="finalResultTitle">Spel over</h2>
                             <h1 id="finalResult">Nog een keer spelen?</h1>
                             <br><br><br>
-                            <button class="BackButtonStyle backToLobby">Nieuw spel <img src="images/StopGame.png"
+                            <button class="BackButtonStyle backToLobby">Nieuwe ronde<img src="images/StopGame.png"
                                     alt="sadVinyl"></button>
                         </div>
                     </div>
