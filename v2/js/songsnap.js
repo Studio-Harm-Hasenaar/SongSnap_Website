@@ -2,7 +2,7 @@
 
 $('.LogoutButton').click(function () {
     if (confirm("Weet je zeker dat je wil uitloggen?")) {
-        firebase.auth().signOut();
+        firebaseAuth.signOut();
     }
     return false;
 });
@@ -34,6 +34,7 @@ var isHost;
 
 //Switch between states (game active or not)
 function SetGameActive(gameActive, gameError = "") {
+    console.log("Game active: "+gameActive);
     $('#GameNotActive').css('display', gameActive ? 'none' : 'inline');
     $('#GameActive').css('display', gameActive ? 'inline' : 'none');
     if (!gameActive)
@@ -147,7 +148,7 @@ connectedRef.on('value', (snap) => {
 
 //Show the menu where the host can change volume and go back to the lobby.
 function ShowMenu(show) {
-    if (firebase.auth().currentUser != null) {
+    if (firebaseAuth.currentUser != null) {
         pauseMenuOpen = show;
         firebaseDB.ref(roomNumberCookie + "/GamePaused").once("value")
             .then(function (snapshot) {
@@ -253,7 +254,7 @@ function SetUserLoggedId() {
             }
         });
 
-
+        console.log("Roomname: "+roomNumberCookie);
         if (roomNumberCookie != "" && roomNumberCookie != null) {
             //Set username
             var ref = firebase.database().ref(roomNumberCookie);
@@ -262,8 +263,8 @@ function SetUserLoggedId() {
                     if (!snapshot.child("CurrentGameState").exists())
                         SetGameActive(false, "Spel is niet actief");
                     else {
-                        if (firebase.auth().currentUser != null)
-                            userName = firebase.auth().currentUser.displayName;
+                        if (firebaseAuth.currentUser != null)
+                            userName = firebaseAuth.currentUser.displayName;
                         if (userName != null && userName != "" && userName != "undefined")
                             {
                                 var nameExists = false;
@@ -308,6 +309,8 @@ function SetUserLoggedId() {
         else
             SetGameActive(false, "Geen kamernummer gevonden. Heb je de QR code gescand?");
     }
+        else
+            SetGameActive(false, "Geen kamernummer gevonden. Heb je de QR code gescand?");
 }
 
 function SetupNewPlayer() {
@@ -319,8 +322,8 @@ function SetupNewPlayer() {
 
             console.log("Setup new player");
 
-            var tempUserName = firebase.auth().currentUser.displayName;
-            firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid).update({
+            var tempUserName = firebaseAuth.currentUser.displayName;
+            firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebaseAuth.currentUser.uid).update({
                 PlayerName: tempUserName,
                 UserActive: true,
             });
@@ -344,10 +347,10 @@ function PlayerLeft() {
     console.log("left");
     if (roomNumberCookie == null)
     return;
-    firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid).once("value")
+    firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebaseAuth.currentUser.uid).once("value")
         .then(function (snapshot) {
             if (snapshot.val() !== null)
-                firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid + "/UserActive").set(false);
+                firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebaseAuth.currentUser.uid + "/UserActive").set(false);
         });
 }
 
@@ -364,11 +367,11 @@ function SetGuessData(snapshot) {
             //Get local time to set as guesstime (Only if there is no data yet)
             var startDate = new Date();
             var combinedStartDate = (startDate.getMinutes() * 60000) + (startDate.getSeconds() * 1000) + startDate.getMilliseconds();
-            firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid + "/GuessStartTime").once("value")
+            firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebaseAuth.currentUser.uid + "/GuessStartTime").once("value")
                 .then(function (snapshot) {
                     if (snapshot.val() !== null)
                         if (snapshot.val() == "-1") {
-                            firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid + "/GuessStartTime").set(combinedStartDate);
+                            firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebaseAuth.currentUser.uid + "/GuessStartTime").set(combinedStartDate);
                         }
                 });
 
@@ -455,7 +458,7 @@ function SetButtonStyle(buttonToSet, newValue) {
 
 function CheckIfGuessed(fallBackValue, guessText) {
     var guessedNumber = -1;
-    firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid).once("value")
+    firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebaseAuth.currentUser.uid).once("value")
         .then(function (snapshot) {
             if (snapshot.val() !== null) {
                 guessedNumber = snapshot.child("SelectedAnswer").val();
@@ -514,7 +517,7 @@ function EnterGuess(newGuess) {
     //Get local time to set as guesstime
     var endDate = new Date();
     var combinedEndDate = (endDate.getMinutes() * 60000) + (endDate.getSeconds() * 1000) + endDate.getMilliseconds();
-    firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid).once("value")
+    firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebaseAuth.currentUser.uid).once("value")
         .then(function (snapshot) {
             if (snapshot.val() !== null) {
                 //Get song data
@@ -526,8 +529,8 @@ function EnterGuess(newGuess) {
                                 var guessTimeMS = -1;
                                 if (combinedEndDate > startDate)
                                     guessTimeMS = combinedEndDate - startDate;
-                                firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid + "/GuessTimeMS").set(guessTimeMS);
-                                firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid + "/SelectedAnswer").set(newGuess);
+                                firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebaseAuth.currentUser.uid + "/GuessTimeMS").set(guessTimeMS);
+                                firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebaseAuth.currentUser.uid + "/SelectedAnswer").set(newGuess);
                                 CheckIfGuessed(1, 'Geraden');
                             }
                         }
@@ -539,7 +542,7 @@ function EnterGuess(newGuess) {
 //Update the score.
 function SetPlayerScoreScreen() {
     ResetScoreScreen();
-    firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebase.auth().currentUser.uid).once("value")
+    firebaseDB.ref(roomNumberCookie + "/ActivePlayers/" + firebaseAuth.currentUser.uid).once("value")
         .then(function (playerSnapShot) {
             if (playerSnapShot.val() !== null) {
                 //Get song data
@@ -563,7 +566,7 @@ function SetPlayerScoreScreen() {
                                 correctArtist = songDataSnapShot.child('GuessData').child("songData").child(correctAnswerInt).child("artistName").val();
                                 correctSong = songDataSnapShot.child('GuessData').child("songData").child(correctAnswerInt).child("songName").val();
                             }
-                            var isFastestGuessed = firebase.auth().currentUser.uid == songDataSnapShot.child('GuessData').child("fastestGuesserUID").val();
+                            var isFastestGuessed = firebaseAuth.currentUser.uid == songDataSnapShot.child('GuessData').child("fastestGuesserUID").val();
 
                             var pickedAnswerClass = GetColorClass(selectedAnswerInt);
                             var correctAnswerClass = GetColorClass(correctAnswerInt);
@@ -761,7 +764,7 @@ $('#formSubmit').submit(function (e) {
                     }
 
         if (newDisplayname != "" && !nameExists) {
-            const user = firebase.auth().currentUser;
+            const user = firebaseAuth.currentUser;
             user.updateProfile({
                 displayName: newDisplayname,
             }).then(() => {

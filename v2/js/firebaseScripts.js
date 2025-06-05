@@ -1,13 +1,13 @@
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBV7Il02QKJm5ySV7mkxRIGk174KIDlgzQ",
-      authDomain: "song-snap.firebaseapp.com",
-      databaseURL: "https://song-snap-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "song-snap",
-      storageBucket: "song-snap.appspot.com",
-      messagingSenderId: "222199242127",
-      appId: "1:222199242127:web:b0917cd835ccfbddf27ffa",
-      measurementId: "G-R08D0MSK2P"
+  apiKey: "AIzaSyBV7Il02QKJm5ySV7mkxRIGk174KIDlgzQ",
+  authDomain: "song-snap.firebaseapp.com",
+  databaseURL: "https://song-snap-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "song-snap",
+  storageBucket: "song-snap.firebasestorage.app",
+  messagingSenderId: "222199242127",
+  appId: "1:222199242127:web:b0917cd835ccfbddf27ffa",
+  measurementId: "G-R08D0MSK2P"
     };
 
     let fb = firebase.initializeApp(firebaseConfig);
